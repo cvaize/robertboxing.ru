@@ -1,0 +1,42 @@
+.navbar{
+  margin-top: 26px;
+  &__shadow{
+    box-shadow: 0px 1px 10px #999;
+  }
+}
+.navbar-toggler{
+  border-color: #FF7800;
+  margin-left: 1rem;
+}
+.nav-link{
+  font-size: 1.25rem;
+  color: #000000;
+  padding: 0 1rem 0 1rem;
+  @media (min-width: 992px) {
+    padding-right: 2.5rem;
+    padding-left: 2.5rem;
+  }
+  &:hover{
+    color: rgba(255, 120, 0, 0.75);
+  }
+  &--orange{
+    color: #FF7800;
+    &:hover, &:active{
+      color: rgba(255, 120, 0, 0.75);
+    }
+  }
+}
+.navbar-expand-lg .navbar-nav .nav-link{
+  padding: 0 1rem 0 1rem;
+  @media (min-width: 992px) {
+    padding-right: 2.5rem;
+    padding-left: 2.5rem;
+  }
+}
+.nav-item{
+  &.active{
+    .nav-link{
+      text-decoration: underline;
+    }
+  }
+}

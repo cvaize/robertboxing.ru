@@ -1,0 +1,19 @@
+
+@import '~bootstrap/scss/bootstrap';
+@import './typography';
+@import './navbar';
+@import './main';
+@import './buttons';
+@import './footer';
+
+
+
+
+//@import "~slick-carousel/slick/slick";
+//@import "~slick-carousel/slick/slick-theme";
+@import "~owl.carousel/dist/assets/owl.carousel.min.css";
+@import "~owl.carousel/dist/assets/owl.theme.default.min.css";
+
+@import "~malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.css";
+
+@import "components/scroller";
