@@ -30,8 +30,8 @@ $slider = [
                 </div>
             </div>
             <div class="col-md-8 mb-4">
-                <div class="js-scroll-bar">
-                    <div class="scroll-bar js-scroll-bar__swipe">
+                <div class="js-scroll-bar scroll-bar__wrapper scrollbar-chrome">
+                    <div class="scroll-bar">
                         @foreach($slider as $item)
                             <div class="scroll-bar__item d-flex align-items-center justify-content-center" style="background-image: linear-gradient(0deg, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url({{$item['img']}});">
                                 <a class="text-uppercase text-skew-effect w-100 h-100 d-block" href="{{$item['link']}}">

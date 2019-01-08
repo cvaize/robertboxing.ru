@@ -1,10 +1,4 @@
-//.v1{
-//  &-scroller{
-//    overflow: hidden;
-//    width: 100%;
-//  }
-//
-//}
+
 
 .scroll-bar{
   width: 100%;
@@ -15,6 +9,7 @@
   }
   //overflow-x: auto;
   &__item{
+    overflow: hidden;
     position: relative;
     background-color: #FF7800;
     background-repeat: no-repeat;
@@ -56,36 +51,97 @@
       }
     }
   }
-}
-.mCSB_scrollTools .mCSB_draggerRail{
-  background-color: #FF6B00;
-  margin: 12px 4px!important;
-  width: 100%!important;
-  @include media-breakpoint-down(sm){
-    margin: 12px auto!important;
+  &__wrapper{
+    &.scroll-wrapper{
+      padding: 0 0 3rem 0 !important;
+    }
+    &.scrollbar-chrome{
+
+      //.scroll-element_inner-wrapper{
+      //  background-color: #FF6B00;
+      //}
+      > {
+        .scroll-element.scroll-x{
+          height: 40px;
+
+        }
+        .scroll-element.scroll-x .scroll-element_outer{
+          border: none;
+        }
+        .scroll-element.scroll-x .scroll-element_track{
+          height: 2px;
+          left: 4px;
+          top: 15px;
+          border: none;
+          background-color: #FF6B00;
+          @include media-breakpoint-down(sm){
+            left: 0;
+          }
+        }
+        .scroll-element .scroll-bar{
+          cursor: pointer;
+          border-radius: 0;
+          border: none;
+          background-color: transparent;
+          height: 24px;
+          .scroll-bar_body{
+            background-color: #FF7300;
+            //-webkit-clip-path: polygon(1.6% 0, 100% 0, 98.4% 100%, 0% 100%);
+            //clip-path: polygon(1.6% 0, 100% 0, 98.4% 100%, 0% 100%);
+            -webkit-clip-path: polygon(4px 0, 100% 0, calc(100% - 4px) 100%, 0% 100%);
+            clip-path: polygon(4px 0, 100% 0, calc(100% - 4px) 100%, 0% 100%);
+            //@include media-breakpoint-down(xl){
+            //  -webkit-clip-path: polygon(2% 0, 100% 0, 98% 100%, 0% 100%);
+            //  clip-path: polygon(2% 0, 100% 0, 98% 100%, 0% 100%);
+            //}
+            //@include media-breakpoint-down(lg){
+            //  -webkit-clip-path: polygon(3% 0, 100% 0, 97% 100%, 0% 100%);
+            //  clip-path: polygon(3% 0, 100% 0, 97% 100%, 0% 100%);
+            //}
+            @include media-breakpoint-down(sm){
+              -webkit-clip-path: none;
+              clip-path: none;
+              width: 94%;
+              margin-left: 3%;
+            }
+          }
+        }
+
+
+
+      }
+    }
   }
 }
-.mCSB_scrollTools.mCSB_scrollTools_horizontal .mCSB_dragger .mCSB_dragger_bar{
-  background-color: #FF7300;
-  height: 24px;
-  margin: 0 auto!important;
-  border-radius: 0;
-  -webkit-clip-path: polygon(2% 0, 100% 0, 98% 100%, 0% 100%);
-  clip-path: polygon(2% 0, 100% 0, 98% 100%, 0% 100%);
-  @include media-breakpoint-down(sm){
-    -webkit-clip-path: none;
-    clip-path: none;
-  }
-}
-.mCSB_scrollTools.mCSB_scrollTools_horizontal .mCSB_dragger{
-  width: 200px;
-}
-.mCSB_scrollTools.mCSB_scrollTools_horizontal{
-  height: 24px;
-}
-.mCSB_horizontal.mCSB_inside > .mCSB_container{
-  margin-bottom: 50px!important;
-}
+//.mCSB_scrollTools .mCSB_draggerRail{
+//  background-color: #FF6B00;
+//  margin: 12px 4px!important;
+//  width: 100%!important;
+//  @include media-breakpoint-down(sm){
+//    margin: 12px auto!important;
+//  }
+//}
+//.mCSB_scrollTools.mCSB_scrollTools_horizontal .mCSB_dragger .mCSB_dragger_bar{
+//  background-color: #FF7300;
+//  height: 24px;
+//  margin: 0 auto!important;
+//  border-radius: 0;
+//  -webkit-clip-path: polygon(2% 0, 100% 0, 98% 100%, 0% 100%);
+//  clip-path: polygon(2% 0, 100% 0, 98% 100%, 0% 100%);
+//  @include media-breakpoint-down(sm){
+//    -webkit-clip-path: none;
+//    clip-path: none;
+//  }
+//}
+//.mCSB_scrollTools.mCSB_scrollTools_horizontal .mCSB_dragger{
+//  width: 200px;
+//}
+//.mCSB_scrollTools.mCSB_scrollTools_horizontal{
+//  height: 24px;
+//}
+//.mCSB_horizontal.mCSB_inside > .mCSB_container{
+//  margin-bottom: 50px!important;
+//}
 .text-skew-effect{
   text{
     font-family: 'Oswald', sans-serif;
