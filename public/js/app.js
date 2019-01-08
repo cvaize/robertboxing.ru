@@ -23230,7 +23230,9 @@ __webpack_require__(/*! bootstrap */ "./node_modules/bootstrap/dist/js/bootstrap
 
 __webpack_require__(/*! owl.carousel */ "./node_modules/owl.carousel/dist/owl.carousel.js");
 
-__webpack_require__(/*! clip-path */ "./node_modules/clip-path/dist/clippath.min.js"); // require('jquery-touchswipe/jquery.touchSwipe.min');
+__webpack_require__(/*! clip-path */ "./node_modules/clip-path/dist/clippath.min.js");
+
+__webpack_require__(/*! ../libs/jquery-custom-scrollbar-0.5.5/jquery.custom-scrollbar.min */ "./resources/assets/libs/jquery-custom-scrollbar-0.5.5/jquery.custom-scrollbar.min.js"); // require('jquery-touchswipe/jquery.touchSwipe.min');
 
 
 __webpack_require__(/*! malihu-custom-scrollbar-plugin */ "./node_modules/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.js");
@@ -23251,12 +23253,147 @@ __webpack_require__(/*! malihu-custom-scrollbar-plugin */ "./node_modules/malihu
   });
   	 */
   $(window).on("load", function () {
-    if ($('.js-scroll-bar').length) {
-      $('.js-scroll-bar').mCustomScrollbar({
-        axis: "x",
-        autoDraggerLength: false // theme:"dark"
+    var scrollBar = $('.js-scroll-bar');
 
+    if (scrollBar.length) {
+      scrollBar.mCustomScrollbar({
+        axis: "x",
+        autoDraggerLength: false,
+        documentTouchScroll: true // theme:"dark"
+
+      }); // scrollBar.customScrollbar();
+
+      /**
+      let directionData = 'left';
+      let distanceData = 0;
+      function calculatePosition(distance){
+      	return new Promise(function (resolve, reject) {
+      		
+      		let widthScrollBar = $('.js-scroll-bar').width();
+      		let widthScrollBarSwipe = $('#mCSB_1_container').width();
+      		let widthScrollBarSwipeLeft = $('#mCSB_1_container').css('left');
+      		widthScrollBarSwipeLeft = widthScrollBarSwipeLeft.replace('-', '').replace('px', '');
+      		widthScrollBarSwipeLeft = Number(widthScrollBarSwipeLeft);
+      		console.log('distance',distance);
+      		let position = widthScrollBarSwipeLeft + distance;
+      		// position *= -1;
+      			console.log('widthScrollBarSwipeLeft + distance',position);
+      		if(position <= 0){
+      			if(widthScrollBarSwipeLeft <= 0){
+      				resolve(-1);
+      			}
+      			position = 0;
+      		}else{
+      			let r = widthScrollBarSwipe - widthScrollBar;
+      			if(position >= r){
+      				if(r <= widthScrollBarSwipeLeft){
+      					resolve(-1);
+      				}
+      				position = r;
+      			}
+      		}
+      				console.log(widthScrollBar, widthScrollBarSwipe, widthScrollBarSwipeLeft);
+      		
+      		resolve(position);
+      	});
+      }
+      let distanceDataX = 0;
+      let distanceDataY = 0;
+      $(".js-scroll-bar__swipe").swipe({
+      	swipeStatus:function(event, phase, direction, distance, fingerCount, fingerData) {
+      		directionData = direction;
+      		let rPosY = 0;
+      		let rPosX = 0;
+      		if(phase === 'start'){
+      			if(directionData === 'up' || directionData === 'down'){
+      				distanceDataX = 0;
+      			}
+      			if(directionData === 'left' || directionData === 'right'){
+      				distanceDataY = 0;
+      			}
+      		}else{
+      			if(directionData === 'up'){
+      				rPosY = distanceDataX + distance;
+      			}
+      			if(directionData === 'down'){
+      				rPosY = distanceDataX - distance;
+      			}
+      			if(directionData === 'right'){
+      				rPosX = distanceDataY - distance;
+      			}
+      			if(directionData === 'left'){
+      				rPosX = distanceDataY + distance;
+      			}
+      				if(directionData === 'up' || directionData === 'down'){
+      				distanceDataX = distance;
+      			}
+      			if(directionData === 'left' || directionData === 'right'){
+      				distanceDataY = distance;
+      			}
+      		}
+      		console.log('rPosY', rPosY);
+      		console.log('rPosX', ''+rPosX);
+      		if(rPosY !== 0){
+      			let scrollTop = $(window).scrollTop();
+      			scrollTop += rPosY;
+      			// $(window).scrollTop(scrollTop);
+      			let body = $("html, body");
+      			body.stop().animate({scrollTop:scrollTop}, 300, 'linear', function() {
+      				console.log("Finished animating");
+      			});
+      		}
+      		if(rPosX !== 0){
+      			// scrollBar.mCustomScrollbar("scrollTo",((rPosX > 0)?'+'+rPosX:''+rPosX));
+      			// calculatePosition(rPosX).then(function (position) {
+      			// 	if(position !== -1){
+      			// 		// console.log('position',position);
+      			// 		scrollBar.mCustomScrollbar("scrollTo",position);
+      			// 	}
+      			// });
+      		}
+      		if(phase === 'end' || phase === 'close'){
+      			distanceDataX = 0;
+      			distanceDataY = 0;
+      		}
+      		// console.log('phase',phase);
+      		// console.log('direction',direction);
+      		// console.log('distance',distance);
+      	},
+      	// swipeStatus:function(event, phase, direction, distance, fingerCount, fingerData) {
+      	// 	directionData = direction;
+      	// 	if(phase === 'start'){
+      	// 		if(directionData === 'left'){
+      	// 			distanceData = distance;
+      	// 		}
+      	// 		if(directionData === 'right'){
+      	// 			distanceData = -1 * distance;
+      	// 		}
+      	// 	}else{
+      	// 		directionData = direction;
+      	// 		if(directionData === 'left'){
+      	// 			distanceData += distance;
+      	// 		}
+      	// 		if(directionData === 'right')
+      	// 			distanceData += -1 * distance;{
+      	// 		}
+      	// 	}
+      	// 	if((directionData === 'left' || directionData === 'right')){
+      	// 		console.log(distanceData);
+      	// 		calculatePosition(distanceData).then(function (position) {
+      	// 			if(position !== -1){
+      	// 				// console.log('position',position);
+      	// 				scrollBar.mCustomScrollbar("scrollTo",position);
+      	// 			}
+      	// 		});
+      	// 	}
+      	// 	if(phase === 'end' || phase === 'close'){
+      	// 		distanceData = 0;
+      	// 	}
+      	// 	// console.log('phase',phase);
+      	// }
       });
+      // $('.js-scroll-bar').mCustomScrollbar("scrollTo",'+100');
+       **/
     }
 
     if ($(".js-main__reviews").length) {
@@ -23276,8 +23413,682 @@ __webpack_require__(/*! malihu-custom-scrollbar-plugin */ "./node_modules/malihu
         mainReviews.trigger('next.owl.carousel', 600);
       });
     }
+
+    if ($(".js-main__news").length) {
+      var mainNews = $(".js-main__news").owlCarousel({
+        items: 1,
+        startPosition: 1,
+        dots: false
+      });
+      $(document).on('click', '.js-main__news__dot', function () {
+        var slide = $(this).attr('data-slide');
+
+        if (slide) {
+          $('.js-main__news__dot').removeClass('active');
+          $(this).addClass('active');
+          mainNews.trigger('to.owl.carousel', Number(slide), 600);
+        }
+      });
+    }
   });
 })($);
+
+/***/ }),
+
+/***/ "./resources/assets/libs/jquery-custom-scrollbar-0.5.5/jquery.custom-scrollbar.min.js":
+/*!********************************************************************************************!*\
+  !*** ./resources/assets/libs/jquery-custom-scrollbar-0.5.5/jquery.custom-scrollbar.min.js ***!
+  \********************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+(function (e) {
+  e.fn.customScrollbar = function (i, t) {
+    var o = {
+      skin: undefined,
+      hScroll: true,
+      vScroll: true,
+      updateOnWindowResize: false,
+      animationSpeed: 300,
+      onCustomScroll: undefined,
+      swipeSpeed: 1,
+      wheelSpeed: 40,
+      fixedThumbWidth: undefined,
+      fixedThumbHeight: undefined
+    };
+
+    var s = function s(i, t) {
+      this.$element = e(i);
+      this.options = t;
+      this.addScrollableClass();
+      this.addSkinClass();
+      this.addScrollBarComponents();
+      if (this.options.vScroll) this.vScrollbar = new n(this, new r());
+      if (this.options.hScroll) this.hScrollbar = new n(this, new l());
+      this.$element.data("scrollable", this);
+      this.initKeyboardScrolling();
+      this.bindEvents();
+    };
+
+    s.prototype = {
+      addScrollableClass: function addScrollableClass() {
+        if (!this.$element.hasClass("scrollable")) {
+          this.scrollableAdded = true;
+          this.$element.addClass("scrollable");
+        }
+      },
+      removeScrollableClass: function removeScrollableClass() {
+        if (this.scrollableAdded) this.$element.removeClass("scrollable");
+      },
+      addSkinClass: function addSkinClass() {
+        if (typeof this.options.skin == "string" && !this.$element.hasClass(this.options.skin)) {
+          this.skinClassAdded = true;
+          this.$element.addClass(this.options.skin);
+        }
+      },
+      removeSkinClass: function removeSkinClass() {
+        if (this.skinClassAdded) this.$element.removeClass(this.options.skin);
+      },
+      addScrollBarComponents: function addScrollBarComponents() {
+        this.assignViewPort();
+
+        if (this.$viewPort.length == 0) {
+          this.$element.wrapInner('<div class="viewport" />');
+          this.assignViewPort();
+          this.viewPortAdded = true;
+        }
+
+        this.assignOverview();
+
+        if (this.$overview.length == 0) {
+          this.$viewPort.wrapInner('<div class="overview" />');
+          this.assignOverview();
+          this.overviewAdded = true;
+        }
+
+        this.addScrollBar("vertical", "prepend");
+        this.addScrollBar("horizontal", "append");
+      },
+      removeScrollbarComponents: function removeScrollbarComponents() {
+        this.removeScrollbar("vertical");
+        this.removeScrollbar("horizontal");
+        if (this.overviewAdded) this.$element.unwrap();
+        if (this.viewPortAdded) this.$element.unwrap();
+      },
+      removeScrollbar: function removeScrollbar(e) {
+        if (this[e + "ScrollbarAdded"]) this.$element.find(".scroll-bar." + e).remove();
+      },
+      assignViewPort: function assignViewPort() {
+        this.$viewPort = this.$element.find(".viewport");
+      },
+      assignOverview: function assignOverview() {
+        this.$overview = this.$viewPort.find(".overview");
+      },
+      addScrollBar: function addScrollBar(e, i) {
+        if (this.$element.find(".scroll-bar." + e).length == 0) {
+          this.$element[i]("<div class='scroll-bar " + e + "'><div class='thumb'></div></div>");
+          this[e + "ScrollbarAdded"] = true;
+        }
+      },
+      resize: function resize(e) {
+        if (this.vScrollbar) this.vScrollbar.resize(e);
+        if (this.hScrollbar) this.hScrollbar.resize(e);
+      },
+      scrollTo: function scrollTo(e) {
+        if (this.vScrollbar) this.vScrollbar.scrollToElement(e);
+        if (this.hScrollbar) this.hScrollbar.scrollToElement(e);
+      },
+      scrollToXY: function scrollToXY(e, i) {
+        this.scrollToX(e);
+        this.scrollToY(i);
+      },
+      scrollToX: function scrollToX(e) {
+        if (this.hScrollbar) this.hScrollbar.scrollOverviewTo(e, true);
+      },
+      scrollToY: function scrollToY(e) {
+        if (this.vScrollbar) this.vScrollbar.scrollOverviewTo(e, true);
+      },
+      remove: function remove() {
+        this.removeScrollableClass();
+        this.removeSkinClass();
+        this.removeScrollbarComponents();
+        this.$element.data("scrollable", null);
+        this.removeKeyboardScrolling();
+        if (this.vScrollbar) this.vScrollbar.remove();
+        if (this.hScrollbar) this.hScrollbar.remove();
+      },
+      setAnimationSpeed: function setAnimationSpeed(e) {
+        this.options.animationSpeed = e;
+      },
+      isInside: function isInside(i, t) {
+        var o = e(i);
+        var s = e(t);
+        var n = o.offset();
+        var l = s.offset();
+        return n.top >= l.top && n.left >= l.left && n.top + o.height() <= l.top + s.height() && n.left + o.width() <= l.left + s.width();
+      },
+      initKeyboardScrolling: function initKeyboardScrolling() {
+        var e = this;
+
+        this.elementKeydown = function (i) {
+          if (document.activeElement === e.$element[0]) {
+            if (e.vScrollbar) e.vScrollbar.keyScroll(i);
+            if (e.hScrollbar) e.hScrollbar.keyScroll(i);
+          }
+        };
+
+        this.$element.attr("tabindex", "-1").keydown(this.elementKeydown);
+      },
+      removeKeyboardScrolling: function removeKeyboardScrolling() {
+        this.$element.removeAttr("tabindex").unbind("keydown", this.elementKeydown);
+      },
+      bindEvents: function bindEvents() {
+        if (this.options.onCustomScroll) this.$element.on("customScroll", this.options.onCustomScroll);
+      }
+    };
+
+    var n = function n(e, i) {
+      this.scrollable = e;
+      this.sizing = i;
+      this.$scrollBar = this.sizing.scrollBar(this.scrollable.$element);
+      this.$thumb = this.$scrollBar.find(".thumb");
+      this.setScrollPosition(0, 0);
+      this.resize();
+      this.initMouseMoveScrolling();
+      this.initMouseWheelScrolling();
+      this.initTouchScrolling();
+      this.initMouseClickScrolling();
+      this.initWindowResize();
+    };
+
+    n.prototype = {
+      resize: function resize(e) {
+        this.scrollable.$viewPort.height(this.scrollable.$element.height());
+        this.sizing.size(this.scrollable.$viewPort, this.sizing.size(this.scrollable.$element));
+        this.viewPortSize = this.sizing.size(this.scrollable.$viewPort);
+        this.overviewSize = this.sizing.size(this.scrollable.$overview);
+        this.ratio = this.viewPortSize / this.overviewSize;
+        this.sizing.size(this.$scrollBar, this.viewPortSize);
+        this.thumbSize = this.calculateThumbSize();
+        this.sizing.size(this.$thumb, this.thumbSize);
+        this.maxThumbPosition = this.calculateMaxThumbPosition();
+        this.maxOverviewPosition = this.calculateMaxOverviewPosition();
+        this.enabled = this.overviewSize > this.viewPortSize;
+        if (this.scrollPercent === undefined) this.scrollPercent = 0;
+        if (this.enabled) this.rescroll(e);else this.setScrollPosition(0, 0);
+        this.$scrollBar.toggle(this.enabled);
+      },
+      calculateThumbSize: function calculateThumbSize() {
+        var e = this.sizing.fixedThumbSize(this.scrollable.options);
+        var i;
+        if (e) i = e;else i = this.ratio * this.viewPortSize;
+        return Math.max(i, this.sizing.minSize(this.$thumb));
+      },
+      initMouseMoveScrolling: function initMouseMoveScrolling() {
+        var i = this;
+        this.$thumb.mousedown(function (e) {
+          if (i.enabled) i.startMouseMoveScrolling(e);
+        });
+
+        this.documentMouseup = function (e) {
+          i.stopMouseMoveScrolling(e);
+        };
+
+        e(document).mouseup(this.documentMouseup);
+
+        this.documentMousemove = function (e) {
+          i.mouseMoveScroll(e);
+        };
+
+        e(document).mousemove(this.documentMousemove);
+        this.$thumb.click(function (e) {
+          e.stopPropagation();
+        });
+      },
+      removeMouseMoveScrolling: function removeMouseMoveScrolling() {
+        this.$thumb.unbind();
+        e(document).unbind("mouseup", this.documentMouseup);
+        e(document).unbind("mousemove", this.documentMousemove);
+      },
+      initMouseWheelScrolling: function initMouseWheelScrolling() {
+        var e = this;
+        this.scrollable.$element.mousewheel(function (i, t, o, s) {
+          if (e.enabled) {
+            if (e.mouseWheelScroll(o, s)) {
+              i.stopPropagation();
+              i.preventDefault();
+            }
+          }
+        });
+      },
+      removeMouseWheelScrolling: function removeMouseWheelScrolling() {
+        this.scrollable.$element.unbind("mousewheel");
+      },
+      initTouchScrolling: function initTouchScrolling() {
+        if (document.addEventListener) {
+          var e = this;
+
+          this.elementTouchstart = function (i) {
+            if (e.enabled) e.startTouchScrolling(i);
+          };
+
+          this.scrollable.$element[0].addEventListener("touchstart", this.elementTouchstart);
+
+          this.documentTouchmove = function (i) {
+            e.touchScroll(i);
+          };
+
+          document.addEventListener("touchmove", this.documentTouchmove);
+
+          this.elementTouchend = function (i) {
+            e.stopTouchScrolling(i);
+          };
+
+          this.scrollable.$element[0].addEventListener("touchend", this.elementTouchend);
+        }
+      },
+      removeTouchScrolling: function removeTouchScrolling() {
+        if (document.addEventListener) {
+          this.scrollable.$element[0].removeEventListener("touchstart", this.elementTouchstart);
+          document.removeEventListener("touchmove", this.documentTouchmove);
+          this.scrollable.$element[0].removeEventListener("touchend", this.elementTouchend);
+        }
+      },
+      initMouseClickScrolling: function initMouseClickScrolling() {
+        var e = this;
+
+        this.scrollBarClick = function (i) {
+          e.mouseClickScroll(i);
+        };
+
+        this.$scrollBar.click(this.scrollBarClick);
+      },
+      removeMouseClickScrolling: function removeMouseClickScrolling() {
+        this.$scrollBar.unbind("click", this.scrollBarClick);
+      },
+      initWindowResize: function initWindowResize() {
+        if (this.scrollable.options.updateOnWindowResize) {
+          var i = this;
+
+          this.windowResize = function () {
+            i.resize();
+          };
+
+          e(window).resize(this.windowResize);
+        }
+      },
+      removeWindowResize: function removeWindowResize() {
+        e(window).unbind("resize", this.windowResize);
+      },
+      isKeyScrolling: function isKeyScrolling(e) {
+        return this.keyScrollDelta(e) != null;
+      },
+      keyScrollDelta: function keyScrollDelta(e) {
+        for (var i in this.sizing.scrollingKeys) {
+          if (i == e) return this.sizing.scrollingKeys[e](this.viewPortSize);
+        }
+
+        return null;
+      },
+      startMouseMoveScrolling: function startMouseMoveScrolling(i) {
+        this.mouseMoveScrolling = true;
+        e("html").addClass("not-selectable");
+        this.setUnselectable(e("html"), "on");
+        this.setScrollEvent(i);
+      },
+      stopMouseMoveScrolling: function stopMouseMoveScrolling(i) {
+        this.mouseMoveScrolling = false;
+        e("html").removeClass("not-selectable");
+        this.setUnselectable(e("html"), null);
+      },
+      setUnselectable: function setUnselectable(e, i) {
+        if (e.attr("unselectable") != i) {
+          e.attr("unselectable", i);
+          e.find(":not(input)").attr("unselectable", i);
+        }
+      },
+      mouseMoveScroll: function mouseMoveScroll(e) {
+        if (this.mouseMoveScrolling) {
+          var i = this.sizing.mouseDelta(this.scrollEvent, e);
+          this.scrollThumbBy(i);
+          this.setScrollEvent(e);
+        }
+      },
+      startTouchScrolling: function startTouchScrolling(e) {
+        if (e.touches && e.touches.length == 1) {
+          this.setScrollEvent(e.touches[0]);
+          this.touchScrolling = true;
+          e.stopPropagation();
+        }
+      },
+      touchScroll: function touchScroll(e) {
+        if (this.touchScrolling && e.touches && e.touches.length == 1) {
+          var i = -this.sizing.mouseDelta(this.scrollEvent, e.touches[0]) * this.scrollable.options.swipeSpeed;
+          var t = this.scrollOverviewBy(i);
+
+          if (t) {
+            e.stopPropagation();
+            e.preventDefault();
+            this.setScrollEvent(e.touches[0]);
+          }
+        }
+      },
+      stopTouchScrolling: function stopTouchScrolling(e) {
+        this.touchScrolling = false;
+        e.stopPropagation();
+      },
+      mouseWheelScroll: function mouseWheelScroll(e, i) {
+        var t = -this.sizing.wheelDelta(e, i) * this.scrollable.options.wheelSpeed;
+        if (t != 0) return this.scrollOverviewBy(t);
+      },
+      mouseClickScroll: function mouseClickScroll(e) {
+        var i = this.viewPortSize - 20;
+        if (e["page" + this.sizing.scrollAxis()] < this.$thumb.offset()[this.sizing.offsetComponent()]) // mouse click over thumb
+          i = -i;
+        this.scrollOverviewBy(i);
+      },
+      keyScroll: function keyScroll(e) {
+        var i = e.which;
+
+        if (this.enabled && this.isKeyScrolling(i)) {
+          if (this.scrollOverviewBy(this.keyScrollDelta(i))) e.preventDefault();
+        }
+      },
+      scrollThumbBy: function scrollThumbBy(e) {
+        var i = this.thumbPosition();
+        i += e;
+        i = this.positionOrMax(i, this.maxThumbPosition);
+        var t = this.scrollPercent;
+        this.scrollPercent = i / this.maxThumbPosition;
+        var o = i * this.maxOverviewPosition / this.maxThumbPosition;
+        this.setScrollPosition(o, i);
+
+        if (t != this.scrollPercent) {
+          this.triggerCustomScroll(t);
+          return true;
+        } else return false;
+      },
+      thumbPosition: function thumbPosition() {
+        return this.$thumb.position()[this.sizing.offsetComponent()];
+      },
+      scrollOverviewBy: function scrollOverviewBy(e) {
+        var i = this.overviewPosition() + e;
+        return this.scrollOverviewTo(i, false);
+      },
+      overviewPosition: function overviewPosition() {
+        return -this.scrollable.$overview.position()[this.sizing.offsetComponent()];
+      },
+      scrollOverviewTo: function scrollOverviewTo(e, i) {
+        e = this.positionOrMax(e, this.maxOverviewPosition);
+        var t = this.scrollPercent;
+        this.scrollPercent = e / this.maxOverviewPosition;
+        var o = this.scrollPercent * this.maxThumbPosition;
+        if (i) this.setScrollPositionWithAnimation(e, o);else this.setScrollPosition(e, o);
+
+        if (t != this.scrollPercent) {
+          this.triggerCustomScroll(t);
+          return true;
+        } else return false;
+      },
+      positionOrMax: function positionOrMax(e, i) {
+        if (e < 0) return 0;else if (e > i) return i;else return e;
+      },
+      triggerCustomScroll: function triggerCustomScroll(e) {
+        this.scrollable.$element.trigger("customScroll", {
+          scrollAxis: this.sizing.scrollAxis(),
+          direction: this.sizing.scrollDirection(e, this.scrollPercent),
+          scrollPercent: this.scrollPercent * 100
+        });
+      },
+      rescroll: function rescroll(e) {
+        if (e) {
+          var i = this.positionOrMax(this.overviewPosition(), this.maxOverviewPosition);
+          this.scrollPercent = i / this.maxOverviewPosition;
+          var t = this.scrollPercent * this.maxThumbPosition;
+          this.setScrollPosition(i, t);
+        } else {
+          var t = this.scrollPercent * this.maxThumbPosition;
+          var i = this.scrollPercent * this.maxOverviewPosition;
+          this.setScrollPosition(i, t);
+        }
+      },
+      setScrollPosition: function setScrollPosition(e, i) {
+        this.$thumb.css(this.sizing.offsetComponent(), i + "px");
+        this.scrollable.$overview.css(this.sizing.offsetComponent(), -e + "px");
+      },
+      setScrollPositionWithAnimation: function setScrollPositionWithAnimation(e, i) {
+        var t = {};
+        var o = {};
+        t[this.sizing.offsetComponent()] = i + "px";
+        this.$thumb.animate(t, this.scrollable.options.animationSpeed);
+        o[this.sizing.offsetComponent()] = -e + "px";
+        this.scrollable.$overview.animate(o, this.scrollable.options.animationSpeed);
+      },
+      calculateMaxThumbPosition: function calculateMaxThumbPosition() {
+        return this.sizing.size(this.$scrollBar) - this.thumbSize;
+      },
+      calculateMaxOverviewPosition: function calculateMaxOverviewPosition() {
+        return this.sizing.size(this.scrollable.$overview) - this.sizing.size(this.scrollable.$viewPort);
+      },
+      setScrollEvent: function setScrollEvent(e) {
+        var i = "page" + this.sizing.scrollAxis();
+        if (!this.scrollEvent || this.scrollEvent[i] != e[i]) this.scrollEvent = {
+          pageX: e.pageX,
+          pageY: e.pageY
+        };
+      },
+      scrollToElement: function scrollToElement(i) {
+        var t = e(i);
+
+        if (this.sizing.isInside(t, this.scrollable.$overview) && !this.sizing.isInside(t, this.scrollable.$viewPort)) {
+          var o = t.offset();
+          var s = this.scrollable.$overview.offset();
+          var n = this.scrollable.$viewPort.offset();
+          this.scrollOverviewTo(o[this.sizing.offsetComponent()] - s[this.sizing.offsetComponent()], true);
+        }
+      },
+      remove: function remove() {
+        this.removeMouseMoveScrolling();
+        this.removeMouseWheelScrolling();
+        this.removeTouchScrolling();
+        this.removeMouseClickScrolling();
+        this.removeWindowResize();
+      }
+    };
+
+    var l = function l() {};
+
+    l.prototype = {
+      size: function size(e, i) {
+        if (i) return e.width(i);else return e.width();
+      },
+      minSize: function minSize(e) {
+        return parseInt(e.css("min-width")) || 0;
+      },
+      fixedThumbSize: function fixedThumbSize(e) {
+        return e.fixedThumbWidth;
+      },
+      scrollBar: function scrollBar(e) {
+        return e.find(".scroll-bar.horizontal");
+      },
+      mouseDelta: function mouseDelta(e, i) {
+        return i.pageX - e.pageX;
+      },
+      offsetComponent: function offsetComponent() {
+        return "left";
+      },
+      wheelDelta: function wheelDelta(e, i) {
+        return e;
+      },
+      scrollAxis: function scrollAxis() {
+        return "X";
+      },
+      scrollDirection: function scrollDirection(e, i) {
+        return e < i ? "right" : "left";
+      },
+      scrollingKeys: {
+        37: function _(e) {
+          return -10;
+        },
+        39: function _(e) {
+          return 10;
+        }
+      },
+      isInside: function isInside(i, t) {
+        var o = e(i);
+        var s = e(t);
+        var n = o.offset();
+        var l = s.offset();
+        return n.left >= l.left && n.left + o.width() <= l.left + s.width();
+      }
+    };
+
+    var r = function r() {};
+
+    r.prototype = {
+      size: function size(e, i) {
+        if (i) return e.height(i);else return e.height();
+      },
+      minSize: function minSize(e) {
+        return parseInt(e.css("min-height")) || 0;
+      },
+      fixedThumbSize: function fixedThumbSize(e) {
+        return e.fixedThumbHeight;
+      },
+      scrollBar: function scrollBar(e) {
+        return e.find(".scroll-bar.vertical");
+      },
+      mouseDelta: function mouseDelta(e, i) {
+        return i.pageY - e.pageY;
+      },
+      offsetComponent: function offsetComponent() {
+        return "top";
+      },
+      wheelDelta: function wheelDelta(e, i) {
+        return i;
+      },
+      scrollAxis: function scrollAxis() {
+        return "Y";
+      },
+      scrollDirection: function scrollDirection(e, i) {
+        return e < i ? "down" : "up";
+      },
+      scrollingKeys: {
+        38: function _(e) {
+          return -10;
+        },
+        40: function _(e) {
+          return 10;
+        },
+        33: function _(e) {
+          return -(e - 20);
+        },
+        34: function _(e) {
+          return e - 20;
+        }
+      },
+      isInside: function isInside(i, t) {
+        var o = e(i);
+        var s = e(t);
+        var n = o.offset();
+        var l = s.offset();
+        return n.top >= l.top && n.top + o.height() <= l.top + s.height();
+      }
+    };
+    return this.each(function () {
+      if (i == undefined) i = o;
+
+      if (typeof i == "string") {
+        var n = e(this).data("scrollable");
+        if (n) n[i](t);
+      } else if (_typeof(i) == "object") {
+        i = e.extend(o, i);
+        new s(e(this), i);
+      } else throw "Invalid type of options";
+    });
+  };
+})(jQuery);
+
+(function (e) {
+  var i = ["DOMMouseScroll", "mousewheel"];
+
+  if (e.event.fixHooks) {
+    for (var t = i.length; t;) {
+      e.event.fixHooks[i[--t]] = e.event.mouseHooks;
+    }
+  }
+
+  e.event.special.mousewheel = {
+    setup: function setup() {
+      if (this.addEventListener) {
+        for (var e = i.length; e;) {
+          this.addEventListener(i[--e], o, false);
+        }
+      } else {
+        this.onmousewheel = o;
+      }
+    },
+    teardown: function teardown() {
+      if (this.removeEventListener) {
+        for (var e = i.length; e;) {
+          this.removeEventListener(i[--e], o, false);
+        }
+      } else {
+        this.onmousewheel = null;
+      }
+    }
+  };
+  e.fn.extend({
+    mousewheel: function mousewheel(e) {
+      return e ? this.bind("mousewheel", e) : this.trigger("mousewheel");
+    },
+    unmousewheel: function unmousewheel(e) {
+      return this.unbind("mousewheel", e);
+    }
+  });
+
+  function o(i) {
+    var t = i || window.event,
+        o = [].slice.call(arguments, 1),
+        s = 0,
+        n = true,
+        l = 0,
+        r = 0;
+    i = e.event.fix(t);
+    i.type = "mousewheel"; // Old school scrollwheel delta
+
+    if (t.wheelDelta) {
+      s = t.wheelDelta / 120;
+    }
+
+    if (t.detail) {
+      s = -t.detail / 3;
+    } // New school multidimensional scroll (touchpads) deltas
+
+
+    r = s; // Gecko
+
+    if (t.axis !== undefined && t.axis === t.HORIZONTAL_AXIS) {
+      r = 0;
+      l = s;
+    } // Webkit
+
+
+    if (t.wheelDeltaY !== undefined) {
+      r = t.wheelDeltaY / 120;
+    }
+
+    if (t.wheelDeltaX !== undefined) {
+      l = t.wheelDeltaX / 120;
+    } // Add event and delta to the front of the arguments
+
+
+    o.unshift(i, s, l, r);
+    return (e.event.dispatch || e.event.handle).apply(this, o);
+  }
+})(jQuery);
 
 /***/ }),
 

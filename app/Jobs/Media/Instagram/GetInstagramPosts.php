@@ -10,6 +10,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Support\Facades\Log;
+use InstagramAPI\Response\Model\Item;
 use PhpParser\Builder;
 use Vinkla\Instagram\Instagram;
 use Vinkla\Instagram\InstagramException;
@@ -65,98 +66,90 @@ class GetInstagramPosts implements ShouldQueue {
 		$logMessage .= Carbon::now()->toDayDateTimeString() . ' Get instagram posts: ';
 
 
-		foreach ($getInstagramPosts as $getInstagramPost) {
-			$getInstagramPost = json_decode(json_encode($getInstagramPost), true);
+		foreach ($getInstagramPosts as $post) {
+			/**
+			 * @var Item $post
+			 */
 			$payload = [];
+			$postId = $post->getId();
+			$postUrl = $post->getItemUrl();
+			$postedAt = $post->getDeviceTimestamp();
 
-			if (0 !== count($this->instagramPosts::where('post_id', $getInstagramPost['id'])->get()))
+			if (0 !== count($this->instagramPosts::where('post_id', $postId)->get()))
 				continue;
 
-			$payload['media'] = ['images' => [], 'videos' => []];
+			$payload['media'] = [];
 
-			if ('carousel' === $getInstagramPost['type']) {
-				foreach ($getInstagramPost['carousel_media'] as $media) {
-					if ('image' === $media['type']) {
-						$image = $media['images']['standard_resolution'];
-						array_push($payload['media']['images'], $image);
-					} elseif ('video' === $media['type']) {
-						$video = $media['videos']['standard_resolution'];
-						array_push($payload['media']['videos'], $video);
+			if ($post->isCarouselMedia()) {
+				foreach ($post->getCarouselMedia() as $media) {
+					if ($media->isVideoVersions()) {
+						$video = [
+								'first_frame' => $media->getImageVersions2()->getCandidates()[0]->getUrl(),
+								'url' => $media->getVideoVersions()[0]->getUrl(),
+								'isImage' => false,
+								'isVideo' => true
+						];
+						$payload['media'][] = $video;
+					} else {
+						$image = [
+								'url' => $media->getImageVersions2()->getCandidates()[0]->getUrl(),
+								'isImage' => true,
+								'isVideo' => false
+						];
+						$payload['media'][] = $image;
 					}
 				}
-			} elseif ('video' === $getInstagramPost['type']) {
-				$video = $getInstagramPost['videos']['standard_resolution'];
-				array_push($payload['media']['videos'], $video);
-			} elseif ('image' === $getInstagramPost['type']) {
-				$image = $getInstagramPost['images']['standard_resolution'];
-				array_push($payload['media']['images'], $image);
+			} elseif ($post->isVideoVersions()) {
+				$video = [
+						'first_frame' => $post->getImageVersions2()->getCandidates()[0]->getUrl(),
+						'url' => $post->getVideoVersions()[0]->getUrl(),
+						'isImage' => false,
+						'isVideo' => true
+				];
+				$payload['media'][] = $video;
+			} else {
+				$image = [
+						'url' => $post->getImageVersions2()->getCandidates()[0]->getUrl(),
+						'isImage' => true,
+						'isVideo' => false
+				];
+				$payload['media'][] = $image;
 			}
 
-			if (null !== $getInstagramPost['caption']) {
-				$payload['caption'] = $this->getCaptionText($getInstagramPost['caption']['text']);
+			if ($post->isCaption()) {
+				$payload['caption'] = $post->getCaption()->getText();
 			} else {
 				$payload['caption'] = '';
 			}
 
-			if (0 !== count($getInstagramPost['tags'])) {
-				$payload['tags'] = $this->getHashtags($getInstagramPost['tags']);
-			} else {
-				$payload['tags'] = '';
-			}
-
-			$logMessage .= $getInstagramPost['link'] . ' ';
-
-			$frd = ['post_id' => $getInstagramPost['id'], 'link' => $getInstagramPost['link'], 'posted_at' => $getInstagramPost['created_time'], 'is_deleted' => 0, 'payload' => $payload];
+			$payload['posted_at'] = $postedAt;
+			$logMessage .= $postUrl . ' ';
+			$frd = ['post_id' => $postId, 'link' => $postUrl, 'payload' => $payload];
 			$this->instagramPosts->create($frd);
-
 		}
 
 		dump($logMessage);
 	}
 
 	/**
-	 * @param array $tagsArray
-	 * @return string
-	 */
-	private function getHashtags(array $tagsArray): string {
-		$tags = '';
-		foreach ($tagsArray as $tag) {
-			$tags .= '#' . $tag . ' ';
-		}
-		trim($tags);
-
-		return $tags;
-	}
-
-	/**
-	 * @param string $text
-	 * @return string
-	 */
-	private function getCaptionText(string $text): string {
-		$captionText = preg_replace('/#\S*\w/iu', '', $text);
-		$captionText = trim($captionText);
-
-		return $captionText;
-	}
-
-	/**
-	 * @return null|Instagram
+	 * @return \InstagramAPI\Instagram|null
 	 */
 	public function getClient() {
 		if (null === $this->client) {
-			$token = $this->getToken();
-			if (null !== $token) {
-				$this->client = new Instagram($token . '&count=' . $this->getCountPosts());
+			$username = env("INSTAGRAM_LOGIN");
+			$password = env("INSTAGRAM_PASSWORD");
+			$debug = false;
+			$truncatedDebug = false;
+
+			$this->client = new \InstagramAPI\Instagram($debug, $truncatedDebug);
+
+			try {
+				$this->client->login($username, $password);
+			} catch (\InstagramAPI\Exception\InstagramException $exception) {
+				Log::critical('method getClient failed', ['message' => $exception->getMessage(), 'line' => $exception->getLine(), 'code' => $exception->getCode()]);
 			}
 		}
 		return $this->client ?? null;
-	}
-
-	/**
-	 * @return mixed|null
-	 */
-	public function getToken() {
-		return env('INSTAGRAM_API') ?? null;
 	}
 
 	/**
@@ -166,14 +159,42 @@ class GetInstagramPosts implements ShouldQueue {
 		try {
 			$client = $this->getClient();
 			if (null !== $client) {
-				$response = $client->media();
-				//$result = json_decode($response, true);
+				$userId = $client->people->getUserIdForName('_r_robert_r_');
+				//$userId = $client->people->getUserIdForName('im.lucky.jr');
+				$maxId = null;
+				$response = $client->timeline->getUserFeed($userId, $maxId);
+				$items = $response->getItems();
+
+				//dd($items[0]->getCaptionIsEdited());
+				//dd($items[5]);
+
+
+				//dd($items[1]);
+
+				//foreach ($items as $item) {
+				//	dump('inst post id: ' . $item->getId());
+				//	dump('inst post url: ' . $item->getItemUrl());
+				//	dump('inst post posted at: ' . $item->getDeviceTimestamp());
+				//	dump('inst post caption: ' . $item->getCaption()->getText());
+				//	dump('ins post is carousel: ' . $item->isCarouselMedia());
+				//	if ($item->isCarouselMedia()) {
+				//		foreach ($item->getCarouselMedia() as $media) {
+				//			dump('carousel item:  ' . $media->getImageVersions2()->getCandidates()[0]->getUrl());
+				//			dump('carousel item link: ' . $media->getLink());
+				//		}
+				//	}
+				//	dump('inst post has video: ' . $item->isVideoVersions());
+				//	dump('inst post has image versions' . $item->isImageVersions2());
+				//	dump('----------------');
+				//}
+				//
+				//dd('111');
 			}
 		} catch (InstagramException $exception) {
 			Log::critical('method getPost failed', ['message' => $exception->getMessage(), 'line' => $exception->getLine(), 'code' => $exception->getCode()]);
 		}
 
-		return $response ?? null;
+		return $items ?? null;
 	}
 
 	/**

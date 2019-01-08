@@ -6,6 +6,7 @@ use Alaouy\Youtube\Facades\Youtube;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -36,20 +37,17 @@ use Illuminate\Support\Facades\Log;
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Media\Youtube\YoutubeVideo published()
  */
 class YoutubeVideo extends Model {
+	use SoftDeletes;
+
 	/**
 	 * @var array
 	 */
-	protected $fillable = ['video_id', 'title', 'channel_id', 'published_at', 'is_deleted', 'payload'];
+	protected $fillable = ['video_id', 'title', 'channel_id', 'payload'];
 
 	/**
 	 * @var array
 	 */
 	protected $casts = ['payload' => 'array'];
-
-	/**
-	 * @var array
-	 */
-	protected $dates = ['published_at'];
 
 	/**
 	 * @var string

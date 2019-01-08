@@ -9,6 +9,7 @@ use ATehnix\VkClient\Requests\Request;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -38,20 +39,17 @@ use Illuminate\Support\Facades\Log;
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Media\Vk\VkPost whereIsDeleted($value)
  */
 class VkPost extends Model {
+	use SoftDeletes;
+
 	/**
 	 * @var array
 	 */
-	protected $fillable = ['post_id', 'post_text', 'posted_at', 'is_deleted', 'payload'];
+	protected $fillable = ['post_id', 'post_text', 'payload'];
 
 	/**
 	 * @var array
 	 */
 	protected $casts = ['payload' => 'array'];
-
-	/**
-	 * @var array
-	 */
-	protected $dates = ['posted_at'];
 
 	/**
 	 * @var int
@@ -357,19 +355,13 @@ class VkPost extends Model {
 		return $query->where('post_id', '=', $postId);
 	}
 
-    public function scopePined(Builder $query): Builder
-    {
-        return $query->orderByDesc('is_pined')->orderByDesc('id');
-    }
-
 	/**
 	 * @return array
 	 */
 	public static function published(): array {
 		$result = ['pinned' => [], 'not_pinned' => []];
 		$postPinned = self::where('payload', 'like', '%"is_pinned":1%')->get();
-
-        $result['pinned'][] = $postPinned[0];
+		array_push($result['pinned'], $postPinned[0]);
 
 		if (0 !== count($postPinned)) {
 			/**
@@ -388,7 +380,7 @@ class VkPost extends Model {
 		} else {
 			$res = self::orderBy('id', 'desc')->take(3)->get();
 			foreach ($res as $item) {
-                $result['not_pinned'][] = $item;
+				array_push($result['not_pinned'], $item);
 			}
 		}
 

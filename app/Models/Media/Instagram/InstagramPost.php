@@ -36,15 +36,12 @@ use Vinkla\Instagram\Instagram;
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Media\Instagram\InstagramPost published()
  */
 class InstagramPost extends Model {
-	/**
-	 * @var array
-	 */
-	protected $fillable = ['post_id', 'link', 'posted_at', 'is_deleted', 'payload'];
+	use SoftDeletes;
 
 	/**
 	 * @var array
 	 */
-	protected $dates = ['posted_at'];
+	protected $fillable = ['post_id', 'link', 'payload'];
 
 	/**
 	 * @var array
@@ -204,7 +201,8 @@ class InstagramPost extends Model {
 	 */
 	public function scopePublished(Builder $query): Builder {
 		return $query->orderBy('id', 'desc')
-				->where('is_deleted', '!=', '1');
+				->where('is_deleted', '!=', '1')
+				->take(3);
 	}
 
 	/**
@@ -339,5 +337,18 @@ class InstagramPost extends Model {
 	 */
 	public function getToken() {
 		return env('INSTAGRAM_API') ?? null;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getMedia(): array {
+		$result = [];
+		$payload = $this->getPayload();
+		$result['media'] = $payload['media'];
+		$result['url'] = $this->getLink();
+		$result['caption'] = $payload['caption'];
+
+		return $result;
 	}
 }

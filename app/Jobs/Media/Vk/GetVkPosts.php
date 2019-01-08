@@ -146,10 +146,10 @@ class GetVkPosts implements ShouldQueue {
 				$getVkPost['text'] = $this->replaceLinks($getVkPost['text']);
 				$getVkPost['text'] = $this->replaceVkLinks($getVkPost['text']);
 
-				$payload = ['post_author' => $getVkPost['from_id'], 'is_pinned' => $isPinned, 'copy_history' => 0, 'post_attachments' => $getVkPost['attachments']];
+				$payload = ['post_author' => $getVkPost['from_id'], 'is_pinned' => $isPinned, 'copy_history' => 0, 'post_attachments' => $getVkPost['attachments'], 'posted_at' => $getVkPost['date']];
 			}
 
-			$frd = ['post_id' => $getVkPost['id'], 'post_text' => $getVkPost['text'], 'posted_at' => $getVkPost['date'], 'is_deleted' => 0, 'payload' => $payload];
+			$frd = ['post_id' => $getVkPost['id'], 'post_text' => $getVkPost['text'], 'payload' => $payload];
 			$this->vkPosts->create($frd);
 			$indexPosts++;
 		}

@@ -6,6 +6,7 @@ window.jQuery = window.$;
 require('bootstrap');
 require('owl.carousel');
 require('clip-path');
+require('../libs/jquery-custom-scrollbar-0.5.5/jquery.custom-scrollbar.min');
 // require('jquery-touchswipe/jquery.touchSwipe.min');
 require('malihu-custom-scrollbar-plugin');
 
@@ -35,6 +36,7 @@ require('malihu-custom-scrollbar-plugin');
 				documentTouchScroll:true,
 				// theme:"dark"
 			});
+			// scrollBar.customScrollbar();
 			/**
 			let directionData = 'left';
 			let distanceData = 0;

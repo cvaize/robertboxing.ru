@@ -38,13 +38,13 @@ class Kernel extends ConsoleKernel {
 
 		//$schedule->job(new GetInstagramPosts(true, true))
 		//		->everyMinute();
-		//$schedule->job(new UpdatePublishedInstagramPosts(true, true))
-		//		->everyTenMinutes();
+		$schedule->job(new UpdatePublishedInstagramPosts(true, true))
+				->everyMinute();
 
 		//$schedule->job(new GetYoutubeVideos(true, true))
 		//	->everyMinute();
-		$schedule->job(new UpdatePublishedYoutubeVideos(true, true))
-			->everyMinute();
+		//$schedule->job(new UpdatePublishedYoutubeVideos(true, true))
+		//	->everyMinute();
 		//$schedule->job(new UpdatePublishedYoutubeVideos(true, true))
 		//	->everyTenMinute();
 	}

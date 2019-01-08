@@ -72,6 +72,7 @@ class GetYoutubeVideos implements ShouldQueue {
 			$payload['channelTitle'] = $video['snippet']['channelTitle'];
 			$payload['thumbnail'] = $video['snippet']['thumbnails']['high']['url'];
 			$payload['description'] = $video['snippet']['description'];
+			$payload['published_at'] = strtotime($video['snippet']['publishedAt']);
 
 			$logMessage .= $videoId . ' ';
 
@@ -79,8 +80,6 @@ class GetYoutubeVideos implements ShouldQueue {
 					'video_id' => $videoId,
 					'title' => $video['snippet']['title'],
 					'channel_id' => $video['snippet']['channelId'],
-					'published_at' => strtotime($video['snippet']['publishedAt']),
-					'is_deleted' => 0,
 					'payload' => $payload
 			];
 			$this->videos->create($frd);
