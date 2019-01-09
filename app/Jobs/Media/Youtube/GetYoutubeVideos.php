@@ -32,11 +32,11 @@ class GetYoutubeVideos implements ShouldQueue {
 	/**
 	 * @var int
 	 */
-	protected $countVideos = 3;
+	protected $countVideos = 5;
 	/**
 	 * @var string
 	 */
-	private $channelId = 'UCFEFGJpu33RA_PDJXcZXx8w';
+	private $channelId = 'UCyuMv8sIthuCu-ZBdMJhQag';
 
 	/**
 	 * Create a new job instance.
@@ -49,11 +49,12 @@ class GetYoutubeVideos implements ShouldQueue {
 	}
 
 	/**
-	 * @param YoutubeVideo $youtubeVideo
+	 * @param YoutubeVideo $youtubeVideos
+	 * @throws \Exception
 	 */
 	public function handle(YoutubeVideo $youtubeVideos) {
 		$this->videos = $youtubeVideos;
-		$getVideos = $this->getVideos();
+		$getVideos = array_reverse($this->getVideos(), true);
 
 		$logMessage = '';
 
@@ -71,7 +72,7 @@ class GetYoutubeVideos implements ShouldQueue {
 
 			$payload['channelTitle'] = $video['snippet']['channelTitle'];
 			$payload['thumbnail'] = $video['snippet']['thumbnails']['high']['url'];
-			$payload['description'] = $video['snippet']['description'];
+			$payload['description'] = $this->getFullDescription($videoId);
 			$payload['published_at'] = strtotime($video['snippet']['publishedAt']);
 
 			$logMessage .= $videoId . ' ';
@@ -104,6 +105,7 @@ class GetYoutubeVideos implements ShouldQueue {
 
 	/**
 	 * @return array|null
+	 * @throws \Exception
 	 */
 	public function getVideos(): ?array {
 		$channelId = $this->getChannelId();
@@ -111,6 +113,28 @@ class GetYoutubeVideos implements ShouldQueue {
 		$videos = Youtube::listChannelVideos($channelId, $countVideos, 'date');
 		$videos = json_decode(json_encode($videos), true);
 
+		//foreach ($videos as $video) {
+		//	$ddd = strtotime($video['snippet']['publishedAt']);
+		//
+		//	dump($video['id']['videoId'] . ' --- ' . Carbon::createFromTimestamp($ddd)->toDayDateTimeString());
+		//	dump($rrr['snippet']['description']);
+		//	dump('-------');
+		//}
+		//
+		//dd('111');
+
 		return $videos;
+	}
+
+	/**
+	 * @param string $id
+	 * @return string
+	 * @throws \Exception
+	 */
+	public function getFullDescription(string $id): string {
+		$videoInfo = json_decode(json_encode($video = Youtube::getVideoInfo($id)), true);
+		$description = $videoInfo['snippet']['description'];
+
+		return $description;
 	}
 }

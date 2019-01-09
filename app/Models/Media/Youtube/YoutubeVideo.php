@@ -12,13 +12,13 @@ use Illuminate\Support\Facades\Log;
 /**
  * App\Models\Media\Youtube\YoutubeVideo
  *
- * @property int $id
- * @property string $video_id
- * @property string $title
- * @property string $channel_id
- * @property \Illuminate\Support\Carbon $published_at
- * @property int|null $is_deleted
- * @property array|null $payload
+ * @property int                             $id
+ * @property string                          $video_id
+ * @property string                          $title
+ * @property string                          $channel_id
+ * @property \Illuminate\Support\Carbon      $published_at
+ * @property int|null                        $is_deleted
+ * @property array|null                      $payload
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Media\Youtube\YoutubeVideo newModelQuery()
@@ -52,7 +52,7 @@ class YoutubeVideo extends Model {
 	/**
 	 * @var string
 	 */
-	protected $channelId = 'UCFEFGJpu33RA_PDJXcZXx8w';
+	protected $channelId = 'UCyuMv8sIthuCu-ZBdMJhQag';
 
 	/**
 	 * @var int
@@ -77,7 +77,14 @@ class YoutubeVideo extends Model {
 	 * @return string
 	 */
 	public function getTitle(): string {
-		return $this->{'tite'};
+		return $this->{'title'};
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getLink(): string {
+		return 'https://www.youtube.com/watch?v=' . $this->getVideoId();
 	}
 
 	/**
@@ -96,20 +103,6 @@ class YoutubeVideo extends Model {
 		 */
 		$date = $this->{'published_at'};
 		return $date->toDayDateTimeString();
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isDeleted(): bool {
-		return $this->{'is_deleted'};
-	}
-
-	/**
-	 *
-	 */
-	public function setDelete() {
-		$this->{'is_deleted'} = 1;
 	}
 
 	/**
@@ -132,15 +125,18 @@ class YoutubeVideo extends Model {
 	}
 
 	/**
-	 * @param Builder $query
-	 * @return Builder
+	 * @return string
 	 */
-	public function scopePublished(Builder $query): Builder {
-		return $query->orderBy('id', 'desc')
-				->where('is_deleted', '!=', '1')
-				->take(3);
+	public function getDescription(): string {
+		$payload = $this->getPayload();
+		$description = $payload['description'];
+
+		return $description;
 	}
 
+	/**
+	 * @return bool
+	 */
 	public function updateFromYoutube(): bool {
 		$result = false;
 
@@ -154,6 +150,28 @@ class YoutubeVideo extends Model {
 		} catch (\Exception $exception) {
 			Log::critical('method updateFromYoutube failed', ['message' => $exception->getMessage(), 'line' => $exception->getLine(), 'code' => $exception->getCode()]);
 		}
+
+		return $result;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getMedia(): array {
+		$result = [];
+		$payload = $this->getPayload();
+
+		$result['media'] = [
+				[
+						'first_frame' => $payload['thumbnail'],
+						'url' => 'https://www.youtube.com/embed/' . $this->getVideoId(),
+						'isImage' => false,
+						'isVideo' => true
+				]
+		];
+		$result['url'] = $this->getLink();
+		$result['caption'] = $this->getDescription();
+		$result['title'] = $this->getTitle();
 
 		return $result;
 	}

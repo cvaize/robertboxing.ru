@@ -27,7 +27,7 @@ class VkPostController extends Controller {
 	 */
 	public function index() {
 		$postPinned = $this->vkPosts->pinned()->get();
-		$vkPosts = $this->vkPosts::orderBy('id', 'desc')->take(3)->get();
+		$vkPosts = $this->vkPosts::orderByDesc('id')->take(3)->get();
 		$isCoincidence = false;
 		if (0 !== count($postPinned)) {
 			foreach ($postPinned as $item) {

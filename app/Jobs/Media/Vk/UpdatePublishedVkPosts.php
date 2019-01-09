@@ -24,6 +24,9 @@ class UpdatePublishedVkPosts implements ShouldQueue {
 	 */
 	protected $cache;
 
+	/**
+	 * @var
+	 */
 	protected $vkPosts;
 
 	/**
@@ -37,28 +40,18 @@ class UpdatePublishedVkPosts implements ShouldQueue {
 	}
 
 	/**
-	 * Execute the job.
-	 *
-	 * @return void
+	 * @param VkPost $vkPosts
+	 * @throws \Exception
 	 */
 	public function handle(VkPost $vkPosts) {
 		$logMessage = '';
 		$logMessage .= Carbon::now()->toDayDateTimeString() . ' UpdatePusblishedVkPosts: ';
 
 		$this->vkPosts = $vkPosts;
-		foreach ($this->vkPosts->published() as $item) {
-			if (0 !== count($item)) {
-				/**
-				 * @var VkPost $post
-				 */
+		$lastTwentyPosts = $this->vkPosts->orderByDesc('id')->take(20)->get();
 
-				foreach ($item as $post) {
-					$logMessage .= $post->getPostId() . '-' . $post->updateFromVk() . ' ';
-				}
-			}
-
-			//dump($item->getPostId() );
-			//dump('Updating post with id ' . $item->getPostId() . ': ' . $item->updateFromVk());
+		foreach ($lastTwentyPosts as $post) {
+			$logMessage .= $post->getPostId() . '-' . $post->updateFromVk() . ' ';
 		}
 
 		dump($logMessage);

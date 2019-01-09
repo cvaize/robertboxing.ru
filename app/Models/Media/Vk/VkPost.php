@@ -44,7 +44,7 @@ class VkPost extends Model {
 	/**
 	 * @var array
 	 */
-	protected $fillable = ['post_id', 'post_text', 'payload'];
+	protected $fillable = ['post_id', 'post_text', 'is_pinned', 'payload'];
 
 	/**
 	 * @var array
@@ -116,20 +116,6 @@ class VkPost extends Model {
 	}
 
 	/**
-	 * @return bool
-	 */
-	public function isDeleted(): bool {
-		return $this->{'is_deleted'};
-	}
-
-	/**
-	 *
-	 */
-	public function setDeleted() {
-		$this->{'is_deleted'} = 1;
-	}
-
-	/**
 	 * @return mixed|null
 	 */
 	public function getPayload() {
@@ -165,6 +151,13 @@ class VkPost extends Model {
 	}
 
 	/**
+	 * @param bool $pinned
+	 */
+	public function setPinned(bool $pinned) {
+		$this->{'is_pinned'} = $pinned;
+	}
+
+	/**
 	 * @return bool
 	 */
 	public function hasText(): bool {
@@ -184,18 +177,17 @@ class VkPost extends Model {
 	 */
 	public function getCopyHistoryText() {
 		$payload = $this->getPayload();
-		return $payload['copy_history_data'][0]['text'];
+		return $payload['copy_history_text'];
 	}
 
 	/**
 	 * @return string
 	 */
 	public function isPinned(string $block): string {
-		$payload = $this->getPayload();
 		if ('post' === $block)
-			$postClass = $payload['is_pinned'] ? 'vk-post pinned' : 'vk-post';
+			$postClass = $this->{'is_pinned'} ? 'vk-post pinned' : 'vk-post';
 		elseif ('pin' === $block)
-			$postClass = $payload['is_pinned'] ? 'vk-post__pin' : 'vk-post__unpin';
+			$postClass = $this->{'is_pinned'} ? 'vk-post__pin' : 'vk-post__unpin';
 		return $postClass;
 	}
 
@@ -208,134 +200,23 @@ class VkPost extends Model {
 	}
 
 	/**
-	 * @return mixed
-	 */
-	public function getPostCopyAttachments() {
-		$payload = $this->getPayload();
-		return $payload['copy_history_data'][0]['attachments'];
-	}
-
-	/**
-	 * @return mixed
-	 */
-	public function getAttachments() {
-		if ($this->hasCopyHistory())
-			$attachments = $this->getPostCopyAttachments();
-		else
-			$attachments = $this->getPostAttachments();
-
-		return $attachments;
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function hasImages() {
-		$hasImages_ = false;
-		$attachments = $this->getAttachments();
-
-		foreach ($attachments as $attachment) {
-			if (array_key_exists('photo', $attachment))
-				$hasImages_ = true;
-		}
-
-		return $hasImages_;
-	}
-
-	/**
 	 * @return array
 	 */
-	public function getImages(): array {
-		$attachments = $this->getAttachments();
-		$images = [];
-		foreach ($attachments as $attachment) {
-			if (array_key_exists('photo', $attachment)) {
-				foreach ($attachment['photo']['sizes'] as $size) {
-					if (in_array('y', $size)) {
-						array_push($images, ['type' => 'link', 'url' => $size['url']]);
-					}
-				}
-			}
-		}
+	public function getMedia(): array {
+		$result = [];
+		$caption = '';
 
-		return $images;
-	}
+		if ($this->hasText())
+			$caption .= $this->getText() . "\n\n";
 
-	/**
-	 * @param string $id
-	 * @return bool
-	 */
-	public function isBlockedVideo(string $id): bool {
-		$result = true;
-		try {
-			$video = Youtube::getVideoInfo($id);
-			if ('public' !== $video->{'status'}->{'privacyStatus'}) {
-				$result = true;
-			} elseif (array_key_exists('regionRestriction', $video->{'contentDetails'})) {
-				if (in_array('RU', $video->{'contentDetails'}->{'regionRestriction'}->{'blocked'})) {
-					$result = true;
-				}
-			} else
-				$result = false;
-		} catch (\Exception $exception) {
-			$result = true;
-			Log::critical('method isBlockedVideo failed', ['message' => $exception->getMessage(), 'line' => $exception->getLine(), 'code' => $exception->getCode()]);
-		}
+		if ($this->hasCopyHistory())
+			$caption .= $this->getCopyHistoryText() . "\n\n";
+
+		$result['media'] = $this->getPostAttachments();
+		$result['url'] = $this->getLink();
+		$result['caption'] = trim($caption);
 
 		return $result;
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function hasVideos() {
-		$hasVideos_ = false;
-		$attachments = $this->getAttachments();
-
-		foreach ($attachments as $attachment) {
-			if (array_key_exists('video', $attachment)) {
-				$hasVideos_ = true;
-			} elseif (array_key_exists('link', $attachment)) {
-				if (preg_match('/youtube.com|youtu.be/', $attachment['link']['url'])) {
-					$hasVideos_ = true;
-				}
-			}
-		}
-
-		return $hasVideos_;
-	}
-
-	/**
-	 * @return array
-	 */
-	public function getVideos(): array {
-		$attachments = $this->getAttachments();
-		$videos = [];
-
-		foreach ($attachments as $attachment) {
-			if (array_key_exists('video', $attachment)) {
-				array_push($videos, ['type' => 'video_vk', 'photo' => $attachment['video']['photo_800'], 'url' => $this->getVideoLink($attachment['video']['owner_id'], $attachment['video']['id'])]);
-			} elseif (array_key_exists('link', $attachment)) {
-				if (preg_match('/youtube.com|youtu.be/', $attachment['link']['url'])) {
-					foreach ($attachment['link']['photo']['sizes'] as $size) {
-						if (in_array('l', $size)) {
-							array_push($videos, ['type' => 'video_youtube', 'is_blocked' => $attachment['link']['is_blocked'], 'url' => $attachment['link']['url'], 'photo' => $size['url']]);
-						}
-					}
-				}
-			}
-		}
-
-		return $videos;
-	}
-
-	/**
-	 * @return array
-	 */
-	public function getFiles(): array {
-		$files = array_merge($this->getImages(), $this->getVideos());
-
-		return $files;
 	}
 
 	/**
@@ -343,7 +224,7 @@ class VkPost extends Model {
 	 * @return Builder
 	 */
 	public function scopePinned(Builder $query): Builder {
-		return $query->where('payload', 'like', '%"is_pinned":1%');
+		return $query->where('is_pinned', '=', '1');
 	}
 
 	/**
@@ -358,37 +239,14 @@ class VkPost extends Model {
 	/**
 	 * @return array
 	 */
-	public static function published(): array {
-		$result = ['pinned' => [], 'not_pinned' => []];
-		$postPinned = self::where('payload', 'like', '%"is_pinned":1%')->get();
-		array_push($result['pinned'], $postPinned[0]);
-
-		if (0 !== count($postPinned)) {
-			/**
-			 * @var VkPost $postPinned
-			 */
-			$idPinned = $postPinned[0]->getPostId();
-			$res = self::orderBy('id', 'desc')
-					->where([
-							['post_id', '!=', $idPinned],
-							['is_deleted', '!=', 1]
-					])->take(2)
-					->get();
-			foreach ($res as $item) {
-				array_push($result['not_pinned'], $item);
-			}
-		} else {
-			$res = self::orderBy('id', 'desc')->take(3)->get();
-			foreach ($res as $item) {
-				array_push($result['not_pinned'], $item);
-			}
-		}
-
-		return $result;
+	public function scopePosts(Builder $query): Builder {
+		return $query->orderByDesc('is_pinned')
+				->orderByDesc('id');
 	}
 
 	/**
 	 * @return bool
+	 * @throws \Exception
 	 */
 	public function updateFromVk(): bool {
 		$result = false;
@@ -408,7 +266,7 @@ class VkPost extends Model {
 							$parseLink = parse_url($url);
 							if ('youtu.be' === $parseLink['host']) {
 								$id = substr($parseLink['path'], 1);
-								$isBlock = $this->isBlockedVideo($id);
+								//$isBlock = $this->isBlockedVideo($id);
 								$post['attachments'][$indexAttachments]['link']['is_blocked'] = $isBlock;
 
 								if ($isBlock) {
@@ -426,7 +284,7 @@ class VkPost extends Model {
 				if ($this->getText() !== $post['text'])
 					$this->setText($post['text']);
 			} else {
-				$this->setDeleted();
+				$this->delete();
 			}
 
 			$result = true;

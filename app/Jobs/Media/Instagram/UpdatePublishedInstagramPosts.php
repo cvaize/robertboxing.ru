@@ -47,15 +47,12 @@ class UpdatePublishedInstagramPosts implements ShouldQueue {
 		$logMessage .= Carbon::now()->toDayDateTimeString() . ' UpdatePusblishedInstPosts: ';
 
 		$this->$instagramPosts = $instagramPosts;
-		foreach ($this->$instagramPosts->all() as $post) {
+		foreach ($this->$instagramPosts->published()->get() as $post) {
 			/**
 			 * @var InstagramPost $post
 			 */
-
-			$post->getMedia();
-
-			//$result = $post->updateFromInstagram();
-			//$logMessage .= $post->getPostId() . '-' . $result . ' ';
+			$result = $post->updateFromInstagram();
+			$logMessage .= $post->getPostId() . '-' . $result . ' ';
 		}
 
 		dump($logMessage);

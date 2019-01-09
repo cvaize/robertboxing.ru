@@ -36,6 +36,11 @@ class GetVkPosts implements ShouldQueue {
 	/**
 	 * @var
 	 */
+	private $clientForVideos;
+
+	/**
+	 * @var
+	 */
 	private $vkPosts;
 
 	/**
@@ -51,7 +56,7 @@ class GetVkPosts implements ShouldQueue {
 	/**
 	 * @var int
 	 */
-	protected $countPosts = 3;
+	protected $countPosts = 20;
 
 	/**
 	 * Create a new job instance.
@@ -99,23 +104,39 @@ class GetVkPosts implements ShouldQueue {
 				continue;
 
 			if (array_key_exists('copy_history', $getVkPost)) {
-				$indexAttachments = 0;
+				$postAttachments = [];
 				foreach ($getVkPost['copy_history'][0]['attachments'] as $attachment) {
-					if ('link' === $attachment['type']) {
-						$url = $attachment['link']['url'];
-						$parseLink = parse_url($url);
-						if ('youtu.be' === $parseLink['host']) {
-							$id = substr($parseLink['path'], 1);
-							$isBlock = $this->vkPosts->isBlockedVideo($id);
-							$getVkPost['copy_history'][0]['attachments'][$indexAttachments]['link']['is_blocked'] = $isBlock;
+					if ('photo' === $attachment['type']) {
+						$maxWidth = 0;
+						$indexMaxSize = null;
 
-							if ($isBlock) {
-								$link = '/' . preg_replace('/\//', '\/', $url) . '/';
-								$getVkPost['copy_history'][0]['text'] = preg_replace($link, '', $getVkPost['copy_history'][0]['text']);
-							}
+						foreach ($attachment['photo']['sizes'] as $key => $item) {
+							if ($item['width'] > $maxWidth)
+								$maxWidth = $item['width'];
+							$indexMaxSize = $key;
 						}
+
+						$image = [
+								'url' => $attachment['photo']['sizes'][$indexMaxSize]['url'],
+								'isImage' => true,
+								'isVideo' => false
+						];
+
+						$postAttachments[] = $image;
+					} elseif ('video' === $attachment['type']) {
+						$videoOwner = $attachment['video']['owner_id'];
+						$videoId = $attachment['video']['id'];
+						$videoAccessKey = $attachment['video']['access_key'];
+						$videoInfo = $this->getVideoInfo($videoOwner, $videoId, $videoAccessKey);
+						$video = [
+								'first_frame' => $videoInfo['response']['items'][0]['photo_800'],
+								'url' => $videoInfo['response']['items'][0]['player'],
+								'isImage' => false,
+								'isVideo' => true
+						];
+
+						$postAttachments[] = $video;
 					}
-					$indexAttachments++;
 				}
 
 				if ("" !== $getVkPost['copy_history'][0]['text']) {
@@ -123,33 +144,49 @@ class GetVkPosts implements ShouldQueue {
 					$getVkPost['copy_history'][0]['text'] = $this->replaceVkLinks($getVkPost['copy_history'][0]['text']);
 				}
 
-				$payload = ['post_author' => $getVkPost['from_id'], 'is_pinned' => $isPinned, 'copy_history' => 1, 'copy_history_data' => $getVkPost['copy_history']];
+				$payload = ['post_author' => $getVkPost['from_id'], 'copy_history' => 1, 'copy_history_text' => $getVkPost['copy_history'][0]['text'], 'post_attachments' => $postAttachments];
 			} else {
-				$indexAttachments = 0;
+				$postAttachments = [];
 				foreach ($getVkPost['attachments'] as $attachment) {
-					if ('link' === $attachment['type']) {
-						$url = $attachment['link']['url'];
-						$parseLink = parse_url($url);
-						if ('youtu.be' === $parseLink['host']) {
-							$id = substr($parseLink['path'], 1);
-							$isBlock = $this->vkPosts->isBlockedVideo($id);
-							$getVkPost['attachments'][$indexAttachments]['link']['is_blocked'] = $isBlock;
+					if ('photo' === $attachment['type']) {
+						$maxWidth = 0;
+						$indexMaxSize = null;
 
-							if ($isBlock) {
-								$link = '/' . preg_replace('/\//', '\/', $url) . '/';
-								$getVkPost['text'] = preg_replace($link, '', $getVkPost['text']);
-							}
+						foreach ($attachment['photo']['sizes'] as $key => $item) {
+							if ($item['width'] > $maxWidth)
+								$maxWidth = $item['width'];
+							$indexMaxSize = $key;
 						}
+
+						$image = [
+								'url' => $attachment['photo']['sizes'][$indexMaxSize]['url'],
+								'isImage' => true,
+								'isVideo' => false
+						];
+
+						$postAttachments[] = $image;
+					} elseif ('video' === $attachment['type']) {
+						$videoOwner = $attachment['video']['owner_id'];
+						$videoId = $attachment['video']['id'];
+						$videoAccessKey = $attachment['video']['access_key'];
+						$videoInfo = $this->getVideoInfo($videoOwner, $videoId, $videoAccessKey);
+						$video = [
+								'first_frame' => $videoInfo['response']['items'][0]['photo_800'],
+								'url' => $videoInfo['response']['items'][0]['player'],
+								'isImage' => false,
+								'isVideo' => true
+						];
+
+						$postAttachments[] = $video;
 					}
-					$indexAttachments++;
 				}
 				$getVkPost['text'] = $this->replaceLinks($getVkPost['text']);
 				$getVkPost['text'] = $this->replaceVkLinks($getVkPost['text']);
 
-				$payload = ['post_author' => $getVkPost['from_id'], 'is_pinned' => $isPinned, 'copy_history' => 0, 'post_attachments' => $getVkPost['attachments'], 'posted_at' => $getVkPost['date']];
+				$payload = ['post_author' => $getVkPost['from_id'], 'copy_history' => 0, 'post_attachments' => $postAttachments, 'posted_at' => $getVkPost['date']];
 			}
 
-			$frd = ['post_id' => $getVkPost['id'], 'post_text' => $getVkPost['text'], 'payload' => $payload];
+			$frd = ['post_id' => $getVkPost['id'], 'post_text' => $getVkPost['text'], 'is_pinned' => $isPinned, 'payload' => $payload];
 			$this->vkPosts->create($frd);
 			$indexPosts++;
 		}
@@ -161,7 +198,7 @@ class GetVkPosts implements ShouldQueue {
 				 */
 				foreach ($posts as $post) {
 					if ($post->{'post_id'} !== $idPinnedPost) {
-						$post->setPayload('is_pinned', 0);
+						$post->setPinned(0);
 						$post->save();
 					}
 				}
@@ -170,7 +207,7 @@ class GetVkPosts implements ShouldQueue {
 			$existPost = $this->vkPosts->exist($idPinnedPost)->get();
 			if (0 !== count($existPost)) {
 				foreach ($existPost as $post) {
-					$post->setPayload('is_pinned', 1);
+					$post->setPinned(1);
 					$post->save();
 				}
 			}
@@ -233,6 +270,17 @@ class GetVkPosts implements ShouldQueue {
 	}
 
 	/**
+	 * @return Client
+	 */
+	public function getClientForVideos(): Client {
+		if (null === $this->clientForVideos) {
+			$this->clientForVideos = new Client('5.85');
+			$this->clientForVideos->setDefaultToken(env('VK_FOR_VIDEOS_ACCESS_KEY'));
+		}
+		return $this->clientForVideos;
+	}
+
+	/**
 	 * @return mixed|null
 	 */
 	public function getToken() {
@@ -249,6 +297,25 @@ class GetVkPosts implements ShouldQueue {
 			$response = $client->send($request);
 		} catch (VkException $exception) {
 			Log::critical('method getPost failed', ['message' => $exception->getMessage(), 'line' => $exception->getLine(), 'code' => $exception->getCode()]);
+		}
+
+		return $response ?? null;
+	}
+
+	/**
+	 * @param int    $owner
+	 * @param int    $id
+	 * @param string $accessKey
+	 * @return array|null
+	 */
+	public function getVideoInfo(int $owner, int $id, string $accessKey) {
+		try {
+			$client = $this->getClientForVideos();
+			$video = $owner . '_' . $id . '_' . $accessKey;
+			$request = new Request('video.get', ['videos' => $video]);
+			$response = $client->send($request);
+		} catch (VkException $exception) {
+			Log::critical('method getVideoInfo failed', ['message' => $exception->getMessage(), 'line' => $exception->getLine(), 'code' => $exception->getCode()]);
 		}
 
 		return $response ?? null;

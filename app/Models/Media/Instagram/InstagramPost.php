@@ -200,7 +200,7 @@ class InstagramPost extends Model {
 	 * @return Builder
 	 */
 	public function scopePublished(Builder $query): Builder {
-		return $query->orderBy('id', 'desc')
+		return $query->orderByDesc('id')
 				->where('is_deleted', '!=', '1')
 				->take(3);
 	}
