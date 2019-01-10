@@ -87,6 +87,13 @@ class YoutubeVideo extends Model {
 		return 'https://www.youtube.com/watch?v=' . $this->getVideoId();
 	}
 
+    /**
+     * @return array
+     */
+    public function scopePosts(Builder $query): Builder {
+        return $query->orderByDesc('id');
+    }
+
 	/**
 	 * @return string
 	 */

@@ -269,60 +269,19 @@ $slider = [
                         </div>
                     </div>
                     <div class="col-12 d-flex align-items-center justify-content-center">
-                        <div class="main__news__content__dots js-main__news__dot" data-slide="0">
+                        <div class="main__news__content__dots js-main__news__dot" data-select="0" data-social="vk" data-start="{{$vk}}" data-page="1" data-per-page="{{$perPageVk}}" data-final="0" >
                             ВК
                         </div>
-                        <div class="main__news__content__dots js-main__news__dot active" data-slide="1">
+                        <div class="main__news__content__dots js-main__news__dot active" data-select="1" data-social="instagram" data-start="{{$instagram}}" data-page="1" data-per-page="{{$perPageInstagram}}" data-final="0">
                             ИНСТА
                         </div>
-                        <div class="main__news__content__dots js-main__news__dot" data-slide="2">
+                        <div class="main__news__content__dots js-main__news__dot" data-select="0" data-social="youtube" data-start="{{$youtube}}" data-page="1" data-per-page="{{$perPageYoutube}}" data-final="0">
                             ЮТУБ
                         </div>
                     </div>
                     <div class="col-12 col-lg-8 offset-lg-2">
-                        <div class="js-main__news owl-carousel owl-theme">
-                            <div>
-                                <div class="js-main__news__container" data-social="vk" data-slide="0" data-start="" data-page="1" data-per-page="{{$perPageVk??3}}">
-                                    <p class="main__reviews__text">
-                                        <b>Тоня,</b> <span class="color-orange">тренеруюсь год в группе силовой тренировки</span>
-                                    </p>
-                                    <p class="main__reviews__text">
-                                        Сайт рыбатекст поможет дизайнеру, верстальщику, вебмастеру сгенерировать несколько абзацев
-                                        более менее осмысленного текста рыбы на русском языке, а начинающему оратору отточить навык
-                                        публичных выступлений в домашних условиях. При создании генератора мы использовали небезизвестный
-                                        универсальный код речей. Текст генерируется абзацами случайным образом от двух до десяти предложений в
-                                        абзаце, что позволяет сделать текст более привлекательным и живым для визуально-слухового восприятия.
-                                    </p>
-                                </div>
-                            </div>
-                            <div>
-                                <div class="js-main__news__container" data-social="instagram" data-slide="1" data-start="" data-page="1" data-per-page="{{$perPageInstagram??3}}">
-                                    <p class="main__reviews__text">
-                                        <b>Тоня,</b> <span class="color-orange">тренеруюсь год в группе силовой тренировки</span>
-                                    </p>
-                                    <p class="main__reviews__text">
-                                        Сайт рыбатекст поможет дизайнеру, верстальщику, вебмастеру сгенерировать несколько абзацев
-                                        более менее осмысленного текста рыбы на русском языке, а начинающему оратору отточить навык
-                                        публичных выступлений в домашних условиях. При создании генератора мы использовали небезизвестный
-                                        универсальный код речей. Текст генерируется абзацами случайным образом от двух до десяти предложений в
-                                        абзаце, что позволяет сделать текст более привлекательным и живым для визуально-слухового восприятия.
-                                    </p>
-                                </div>
-                            </div>
-                            <div>
-                                <div class="js-main__news__container" data-social="youtube" data-slide="2" data-start="" data-page="1" data-per-page="{{$perPageYoutube??3}}">
-                                    <p class="main__reviews__text">
-                                        <b>Тоня,</b> <span class="color-orange">тренеруюсь год в группе силовой тренировки</span>
-                                    </p>
-                                    <p class="main__reviews__text">
-                                        Сайт рыбатекст поможет дизайнеру, верстальщику, вебмастеру сгенерировать несколько абзацев
-                                        более менее осмысленного текста рыбы на русском языке, а начинающему оратору отточить навык
-                                        публичных выступлений в домашних условиях. При создании генератора мы использовали небезизвестный
-                                        универсальный код речей. Текст генерируется абзацами случайным образом от двух до десяти предложений в
-                                        абзаце, что позволяет сделать текст более привлекательным и живым для визуально-слухового восприятия.
-                                    </p>
-                                </div>
-                            </div>
+                        <div class="js-main__news ">
+
                         </div>
                     </div>
                 </div>
@@ -330,7 +289,7 @@ $slider = [
         </div>
         <div class="main__news__bottom-arrow">
             <div class="main__news__bottom-arrow__load-more d-flex align-items-center justify-content-center">
-                <div class="link-hover-underline text-rotate-skew text-rotate-skew__h1 text-uppercase text-center color-orange text-skew-effect font-italic cursor-pointer">
+                <div class="js-main__news__load-more link-hover-underline text-rotate-skew text-rotate-skew__h1 text-uppercase text-center color-orange text-skew-effect font-italic cursor-pointer">
                     Еще
                 </div>
             </div>

@@ -211,7 +211,6 @@ class VkPost extends Model {
 
 		if ($this->hasCopyHistory())
 			$caption .= $this->getCopyHistoryText() . "\n\n";
-
 		$result['media'] = $this->getPostAttachments();
 		$result['url'] = $this->getLink();
 		$result['caption'] = trim($caption);

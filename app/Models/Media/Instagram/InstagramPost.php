@@ -195,6 +195,13 @@ class InstagramPost extends Model {
 		return $this->getPayload()['caption'] ?? null;
 	}
 
+    /**
+     * @return array
+     */
+    public function scopePosts(Builder $query): Builder {
+        return $query->orderByDesc('id');
+    }
+
 	/**
 	 * @param Builder $query
 	 * @return Builder

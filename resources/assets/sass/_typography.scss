@@ -43,6 +43,16 @@ body{
       margin-bottom: 1rem;
     }
   }
+  &__h4{
+    font-size: 1rem;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+
+    //@media (max-width: 480px) {
+    //  margin-top: 1rem;
+    //  margin-bottom: 1rem;
+    //}
+  }
 }
 .subtext{
   font-family: 'Roboto Condensed', sans-serif;
@@ -58,4 +68,12 @@ body{
 }
 .cursor-pointer{
   cursor: pointer!important;
+}
+.opacity-0{
+  opacity: 0!important;
+}
+.clearfix::after {
+  content: "";
+  clear: both;
+  display: table;
 }
