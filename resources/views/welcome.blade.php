@@ -22,7 +22,7 @@ $slider = [
 @extends('layouts.app')
 
 @section('content')
-    <div class="container-fluid--max">
+    <div id="services" class="container-fluid--max">
         <div class="row no-gutters">
             <div class="col-md-4 d-flex align-items-center justify-content-center mb-4">
                 <div class="main__big-logo">
@@ -34,7 +34,7 @@ $slider = [
                     <div class="scroll-bar">
                         @foreach($slider as $item)
                             <div class="scroll-bar__item d-flex align-items-center justify-content-center" style="background-image: linear-gradient(0deg, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url({{$item['img']}});">
-                                <a class="text-uppercase text-skew-effect w-100 h-100 d-block" href="{{$item['link']}}">
+                                <div class="text-uppercase text-skew-effect w-100 h-100 d-block" data-href="{{$item['link']}}">
 
                                     <svg viewBox="0 0 300 300">
                                         <text width="300" transform="skewX(-17)">
@@ -44,12 +44,12 @@ $slider = [
                                         </text>
                                     </svg>
 
-                                </a>
+                                </div>
                             </div>
                         @endforeach
                         @foreach($slider as $item)
                                 <div class="scroll-bar__item d-flex align-items-center justify-content-center" style="background-image: linear-gradient(0deg, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url({{$item['img']}});">
-                                    <a class="text-uppercase text-skew-effect w-100 h-100 d-block" href="{{$item['link']}}">
+                                    <div class="text-uppercase text-skew-effect w-100 h-100 d-block" data-href="{{$item['link']}}">
 
                                         <svg viewBox="0 0 300 300">
                                             <text width="300" transform="skewX(-17)">
@@ -59,11 +59,11 @@ $slider = [
                                             </text>
                                         </svg>
 
-                                    </a>
+                                    </div>
                                 </div>
                         @endforeach
                             <div class="scroll-bar__item d-flex align-items-center justify-content-center">
-                                <a class="text-uppercase text-skew-effect w-100 h-100 d-block" href="#">
+                                <div class="text-uppercase text-skew-effect w-100 h-100 d-block" data-href="#">
 
                                     <svg viewBox="0 0 300 300">
                                         <text width="300" transform="skewX(-17)">
@@ -76,7 +76,7 @@ $slider = [
                                         Расскажите о цели <br>
                                         и я подберу программу
                                     </div>
-                                </a>
+                                </div>
                             </div>
                     </div>
                 </div>
@@ -145,7 +145,7 @@ $slider = [
             </div>
         </div>
     </div>
-    <div class="container-fluid--max main__bg-tree mt-md-5">
+    <div id="about" class="container-fluid--max main__bg-tree mt-md-5">
         <div class="main__bg-tree__img"></div>
         <div class="container">
             <div class="row no-gutters">
@@ -217,7 +217,7 @@ $slider = [
                     </div>
                 </div>
             </div>
-            <div class="col-12">
+            <div id="reviews" class="col-12">
                 <div class="d-flex align-items-center justify-content-center">
                     <div class="text-rotate-skew text-rotate-skew__h2 text-uppercase text-center color-orange text-skew-effect w-100 h-100 font-italic">
                         Отзывы
@@ -262,7 +262,7 @@ $slider = [
             <div class="container">
                 <div class="row">
                     <div class="col-12">
-                        <div class="d-flex align-items-center justify-content-center">
+                        <div id="news" class="d-flex align-items-center justify-content-center">
                             <div class="text-rotate-skew text-rotate-skew__h1 text-uppercase text-center text-white text-skew-effect w-100 h-100 font-italic">
                                 Новости роберта
                             </div>

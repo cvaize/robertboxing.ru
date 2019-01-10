@@ -101,15 +101,17 @@
       padding-top: .5rem;
     }
     &__wrap-instagram{
-      float: left;
-      @include media-breakpoint-down(sm){
-        float: none;
-        display: flex;
-      }
+      display: flex;
+      //float: left;
+      //@include media-breakpoint-down(sm){
+      //  float: none;
+      //  display: flex;
+      //}
       &__img{
         height: auto;
         width: 100%;
-        max-width: 300px;
+        display: none;
+        //max-width: 300px;
       }
       &-flex{
         display: flex;
@@ -218,9 +220,11 @@
 .wrap-media{
   position: relative;
   display: block;
+  width: 100%;
   &:before{
     content: '';
     position: absolute;
+    z-index: 2;
     top: 5px;
     right: 5px;
     width: 30px;
@@ -233,6 +237,7 @@
   &:after{
     content: '';
     position: absolute;
+    z-index: 2;
     top: 0;
     right: 0;
     width: 100%;

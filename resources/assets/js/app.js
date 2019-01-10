@@ -47,7 +47,14 @@ String.prototype.isEmpty = function()
 	});
 
 	 */
-
+	$("a.js-link-anchor").on("click", function(e){
+		let anchor = $(this);
+		$('html, body').stop().animate({
+			scrollTop: $(anchor.attr('href')).offset().top
+		}, 777);
+		e.preventDefault();
+		return false;
+	});
 
 	let scrollBar = $('.js-scroll-bar');
 	if (scrollBar.length) {
@@ -240,7 +247,7 @@ String.prototype.isEmpty = function()
 				if (item['media'] && item['media'].length) {
 					media += '<div class="js-photobox main__news__wrap-instagram' +
 						(caption.isEmpty()?'-flex':'')+
-						' mb-2 mr-md-3">';
+						' mb-3">';
 					for (let i in item['media']) {
 						let val = item['media'][i];
 						if (val.isVideo) {
@@ -249,7 +256,15 @@ String.prototype.isEmpty = function()
 								((Number(i) !== 0)?' d-none':'') +
 								'" href="' +
 								((val.url) ? val.url : '') +
-								'" rel="video"><img class="main__news__wrap-instagram__img" src="' +
+								'" rel="video">' +
+								'<div class="embed-responsive embed-responsive-16by9">\n' +
+								'<div class="embed-responsive-item">' +
+								'<div class="images-cover bg-dark w-100 h-100" style="background-image: url(' +
+								((val.first_frame) ? val.first_frame : '') +
+								');"></div>' +
+								'</div>\n' +
+								'</div>' +
+								'<img class="main__news__wrap-instagram__img" src="' +
 								((val.first_frame) ? val.first_frame : '') +
 								'" title="' +
 								((social === 'youtube' && item['title']) ? item['title'] : '') +
@@ -261,7 +276,15 @@ String.prototype.isEmpty = function()
 								((Number(i) !== 0)?' d-none':'') +
 								'" href="' +
 								((val.url) ? val.url : '') +
-								'"><img class="main__news__wrap-instagram__img" src="' +
+								'">' +
+								'<div class="embed-responsive embed-responsive-16by9">\n' +
+								'<div class="embed-responsive-item">' +
+								'<div class="images-cover bg-dark w-100 h-100" style="background-image: url(' +
+								((val.url) ? val.url : '') +
+								');"></div>' +
+								'</div>\n' +
+								'</div>' +
+								'<img class="main__news__wrap-instagram__img" src="' +
 								((val.url) ? val.url : '') +
 								'" title="' +
 								((social === 'youtube' && item['title']) ? item['title'] : '') +
@@ -279,7 +302,7 @@ String.prototype.isEmpty = function()
 					'                            </a>\n' +
 					'                        </div></div>' : '');
 				html += `
-							<div class="main__reviews__text clearfix"> 
+							<div class="main__reviews__text"> 
 								${media}
 								
 								${caption}
