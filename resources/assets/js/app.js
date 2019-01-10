@@ -234,201 +234,58 @@ String.prototype.isEmpty = function()
 				let media = '';
 				let url = '';
 
-				switch (social) {
-					case 'vk':
 
-						caption += ((item['caption']) ? item['caption'] : '');
+				caption += ((item['caption']) ? item['caption'] : '');
 
-						if (item['media'] && item['media'].length) {
-							media += '<div class="js-photobox main__news__wrap-instagram' +
-								(caption.isEmpty()?'-flex':'')+
-								' mb-2 mr-md-3">';
-							for (let i in item['media']) {
-								let val = item['media'][i];
-								if (val.isVideo) {
-									media += '<a class="wrap-media' +
-										((item['media'].length > 1)?' wrap-media--gallery':' wrap-media--video') +
-										((Number(i) !== 0)?' d-none':'') +
-										'" href="' +
-										((val.url) ? val.url : '') +
-										'" rel="video"><img class="main__news__wrap-instagram__img" src="' +
-										((val.first_frame) ? val.first_frame : '') +
-										'" title="' +
-										((social === 'youtube' && item['title']) ? item['title'] : (++i)) +
-										'"></a>';
-								}
-								if (val.isImage) {
-									media += '<a class="wrap-media' +
-										((item['media'].length > 1)?' wrap-media--gallery':' wrap-media--photo') +
-										((Number(i) !== 0)?' d-none':'') +
-										'" href="' +
-										((val.url) ? val.url : '') +
-										'"><img class="main__news__wrap-instagram__img" src="' +
-										((val.url) ? val.url : '') +
-										'" title="' +
-										((social === 'youtube' && item['title']) ? item['title'] : (++i)) +
-										'"></a>';
-								}
-							}
-							media += '</div>';
+				if (item['media'] && item['media'].length) {
+					media += '<div class="js-photobox main__news__wrap-instagram' +
+						(caption.isEmpty()?'-flex':'')+
+						' mb-2 mr-md-3">';
+					for (let i in item['media']) {
+						let val = item['media'][i];
+						if (val.isVideo) {
+							media += '<a class="wrap-media' +
+								((item['media'].length > 1)?' wrap-media--gallery':' wrap-media--video') +
+								((Number(i) !== 0)?' d-none':'') +
+								'" href="' +
+								((val.url) ? val.url : '') +
+								'" rel="video"><img class="main__news__wrap-instagram__img" src="' +
+								((val.first_frame) ? val.first_frame : '') +
+								'" title="' +
+								((social === 'youtube' && item['title']) ? item['title'] : '') +
+								'"></a>';
 						}
-						url += ((item['url']) ? '<div>' +
-							'<div class="main__news__link-post d-flex align-items-center justify-content-end">\n' +
-							'                            <a target="_blank" href="' +
-							item['url'] +
-							'" class="mx-1 d-block text-rotate-skew text-rotate-skew__h4 text-uppercase text-center text-white text-skew-effect font-italic">\n' +
-							'                                Ссылка на пост\n' +
-							'                            </a>\n' +
-							'                        </div></div>' : '');
-						html += `
-							<div class="main__reviews__text clearfix"> 
-								${media}
-								
-								${caption}
-								${url}
-							</div>
-						`;
-
-
-						break;
-					case 'instagram':
-
-						caption += ((item['caption']) ? item['caption'] : '');
-
-						if (item['media'] && item['media'].length) {
-							media += '<div class="js-photobox main__news__wrap-instagram' +
-								(caption.isEmpty()?'-flex':'')+
-								' mb-2 mr-md-3">';
-							for (let i in item['media']) {
-								let val = item['media'][i];
-								if (val.isVideo) {
-									media += '<a class="wrap-media' +
-										((item['media'].length > 1)?' wrap-media--gallery':' wrap-media--video') +
-										((Number(i) !== 0)?' d-none':'') +
-										'" href="' +
-										((val.url) ? val.url : '') +
-										'" rel="video"><img class="main__news__wrap-instagram__img" src="' +
-										((val.first_frame) ? val.first_frame : '') +
-										'" title="' +
-										((social === 'youtube' && item['title']) ? item['title'] : (++i)) +
-										'"></a>';
-								}
-								if (val.isImage) {
-									media += '<a class="wrap-media' +
-										((item['media'].length > 1)?' wrap-media--gallery':' wrap-media--photo') +
-										((Number(i) !== 0)?' d-none':'') +
-										'" href="' +
-										((val.url) ? val.url : '') +
-										'"><img class="main__news__wrap-instagram__img" src="' +
-										((val.url) ? val.url : '') +
-										'" title="' +
-										((social === 'youtube' && item['title']) ? item['title'] : (++i)) +
-										'"></a>';
-								}
-							}
-							media += '</div>';
-						}
-						url += ((item['url']) ? '<div>' +
-							'<div class="main__news__link-post d-flex align-items-center justify-content-end">\n' +
-							'                            <a target="_blank" href="' +
-							item['url'] +
-							'" class="mx-1 d-block text-rotate-skew text-rotate-skew__h4 text-uppercase text-center text-white text-skew-effect font-italic">\n' +
-							'                                Ссылка на пост\n' +
-							'                            </a>\n' +
-							'                        </div></div>' : '');
-						html += `
-							<div class="main__reviews__text clearfix"> 
-								${media}
-								
-								${caption}
-								${url}
-							</div>
-						`;
-						break;
-					case 'youtube':
-						caption += ((item['caption']) ? item['caption'] : '');
-
-						if (item['media'] && item['media'].length) {
-							media += '<div class="js-photobox main__news__wrap-instagram' +
-								(caption.isEmpty()?'-flex':'')+
-								' mb-2 mr-md-3">';
-							for (let i in item['media']) {
-								let val = item['media'][i];
-								if (val.isVideo) {
-									media += '<a class="wrap-media' +
-										((item['media'].length > 1)?' wrap-media--gallery':' wrap-media--video') +
-										((Number(i) !== 0)?' d-none':'') +
-										'" href="' +
-										((val.url) ? val.url : '') +
-										'" rel="video"><img class="main__news__wrap-instagram__img" src="' +
-										((val.first_frame) ? val.first_frame : '') +
-										'" title="' +
-										((social === 'youtube' && item['title']) ? item['title'] : (++i)) +
-										'"></a>';
-								}
-								if (val.isImage) {
-									media += '<a class="wrap-media' +
-										((item['media'].length > 1)?' wrap-media--gallery':' wrap-media--photo') +
-										((Number(i) !== 0)?' d-none':'') +
-										'" href="' +
-										((val.url) ? val.url : '') +
-										'"><img class="main__news__wrap-instagram__img" src="' +
-										((val.url) ? val.url : '') +
-										'" title="' +
-										((social === 'youtube' && item['title']) ? item['title'] : (++i)) +
-										'"></a>';
-								}
-							}
-							media += '</div>';
-						}
-						url += ((item['url']) ? '<div>' +
-							'<div class="main__news__link-post d-flex align-items-center justify-content-end">\n' +
-							'                            <a target="_blank" href="' +
-							item['url'] +
-							'" class="mx-1 d-block text-rotate-skew text-rotate-skew__h4 text-uppercase text-center text-white text-skew-effect font-italic">\n' +
-							'                                Ссылка на пост\n' +
-							'                            </a>\n' +
-							'                        </div></div>' : '');
-						html += `
-							<div class="main__reviews__text clearfix"> 
-								${media}
-								
-								${caption}
-								${url}
-							</div>
-						`;
-						break;
-					default:
-
-						break;
-				}
-
-				/**
-				 if(item['url']){
-						switch (social) {
-							case 'vk':
-								html += '<a class="d-block" href="' +
-									item['url'] +
-									'">Ссылка на пост...</a>';
-								break;
-							case 'instagram':
-								html += '<a class="d-block" href="' +
-									item['url'] +
-									'">Ссылка на пост...</a>';
-								break;
-							case 'youtube':
-								html += '<a class="d-block" href="' +
-									item['url'] +
-									'">Ссылка на пост...</a>';
-								break;
-							default:
-								html += '<a class="d-block" href="' +
-									item['url'] +
-									'">Ссылка на пост...</a>';
-								break;
+						if (val.isImage) {
+							media += '<a class="wrap-media' +
+								((item['media'].length > 1)?' wrap-media--gallery':' wrap-media--photo') +
+								((Number(i) !== 0)?' d-none':'') +
+								'" href="' +
+								((val.url) ? val.url : '') +
+								'"><img class="main__news__wrap-instagram__img" src="' +
+								((val.url) ? val.url : '') +
+								'" title="' +
+								((social === 'youtube' && item['title']) ? item['title'] : '') +
+								'"></a>';
 						}
 					}
-				 **/
+					media += '</div>';
+				}
+				url += ((item['url']) ? '<div>' +
+					'<div class="main__news__link-post d-flex align-items-center justify-content-end">\n' +
+					'                            <a target="_blank" href="' +
+					item['url'] +
+					'" class="mx-1 d-block text-rotate-skew text-rotate-skew__h4 text-uppercase text-center text-white text-skew-effect font-italic">\n' +
+					'                                Ссылка на пост\n' +
+					'                            </a>\n' +
+					'                        </div></div>' : '');
+				html += `
+							<div class="main__reviews__text clearfix"> 
+								${media}
+								
+								${caption}
+								${url}
+							</div>
+						`;
 
 				html = '<div class="mb-4 mb-lg-5 pt-4">' +
 					html +
