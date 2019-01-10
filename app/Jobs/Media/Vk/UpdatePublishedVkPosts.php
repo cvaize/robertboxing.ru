@@ -48,12 +48,14 @@ class UpdatePublishedVkPosts implements ShouldQueue {
 		$logMessage .= Carbon::now()->toDayDateTimeString() . ' UpdatePusblishedVkPosts: ';
 
 		$this->vkPosts = $vkPosts;
-		$lastTwentyPosts = $this->vkPosts->orderByDesc('id')->take(20)->get();
+		$lastTenPosts = $this->vkPosts->orderByDesc('id')->take(10)->get();
 
-		foreach ($lastTwentyPosts as $post) {
-			$logMessage .= $post->getPostId() . '-' . $post->updateFromVk() . ' ';
+		foreach ($lastTenPosts as $post) {
+			//$logMessage .= $post->getPostId() . '-' . $post->updateFromVk() . ' ';
+
+			$post->updateFromVk();
 		}
-
+		dd('11111');
 		dump($logMessage);
 	}
 }

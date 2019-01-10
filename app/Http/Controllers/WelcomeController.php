@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Media\Instagram\InstagramPost;
 use App\Models\Media\Vk\VkPost;
 use App\Models\Media\Youtube\YoutubeVideo;
+use App\Models\Requests\RequestSite;
 use Illuminate\Http\Request;
 
 class WelcomeController extends Controller
@@ -89,5 +90,29 @@ class WelcomeController extends Controller
         return response()->json($res);
     }
 
+    public function requests(Request $request)
+    {
+        $messages = [
+            'g-recaptcha-response.required'    => 'Обязательно пройдите reCAPTCHA',
+            'g-recaptcha-response.captcha'    => 'reCAPTCHA не пройдена',
+            'phone.min'    => 'Минимум 8 симоволов',
+            'phone.required'    => 'Обязательно укажите телефон',
+            'name.min'    => 'Минимум 2 симовола',
+            'name.required'    => 'Как к вам обращаться?',
+        ];
+        \Validator::make($request->only(['name', 'phone', 'g-recaptcha-response']), [
+            'name' => 'required|min:2',
+            'phone' => 'required|min:8',
+            'g-recaptcha-response' => 'required|captcha',
+
+        ],$messages)->validate();
+
+        $frd = $request->only(['name', 'phone']);
+        $res = [
+            'type'=>'success',
+        ];
+        RequestSite::create($frd);
+        return response()->json($res);
+    }
 
 }

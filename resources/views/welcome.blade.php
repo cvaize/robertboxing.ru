@@ -117,12 +117,42 @@ $slider = [
     <div class="container">
         <div class="row">
             <div class="col-lg-6 offset-lg-3">
-                <div class="main__box-bg-action d-flex align-items-center justify-content-center">
-                    <div class="my-5 btn-warning--orange__filter">
-                        <button class="btn btn-warning btn-warning--orange">
-                            ЗАПИСАТЬСЯ НА ТРЕНИРОВКУ
-                        </button>
+                <div class="main__box-bg-action d-flex flex-column align-items-center justify-content-center py-5">
+
+                    <div class="collapse js-form-requests__collapse--message-success">
+                        <h4 class="my-5 text-success">
+                            Заявка успешно отправлена
+                        </h4>
                     </div>
+                    <div class="collapse show js-form-requests__collapse--form">
+                        <form class="js-form-requests" method="post" action="/requests">
+                            <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                            <div class="form-group px-sm-3 px-lg-5">
+                                <input name="name" data-name="name" type="text" maxlength="255" class="form-control form-control--main js-form-requests__input" placeholder="Имя">
+                                <div class="invalid-feedback">Как к вам обращаться?</div>
+                            </div>
+                            <div class="form-group px-sm-3 px-lg-5 pb-4">
+                                <input name="phone" data-name="phone" type="tel" maxlength="255" class="form-control form-control--main js-form-requests__input js-phone-mask" placeholder="Телефон">
+                                <div class="invalid-feedback">Обязательно укажите телефон</div>
+                            </div>
+                            <div class="collapse js-form-requests__collapse">
+                                <div class="d-flex justify-content-center">
+                                    {!! Captcha::display() !!}
+                                </div>
+                                <div class="form-group px-sm-3 px-lg-5">
+                                    <input type="hidden" data-name="g-recaptcha-response" class="form-control">
+                                    <div class="invalid-feedback">Обязательно пройдите капчу</div>
+                                </div>
+                            </div>
+                            <div class="mt-3 btn-warning--orange__filter">
+
+                                <button class="btn btn-warning btn-warning--orange" type="submit">
+                                    ЗАПИСАТЬСЯ НА ТРЕНИРОВКУ
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
                 </div>
             </div>
         </div>

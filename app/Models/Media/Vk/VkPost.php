@@ -6,11 +6,14 @@ use Alaouy\Youtube\Facades\Youtube;
 use ATehnix\VkClient\Client;
 use ATehnix\VkClient\Exceptions\VkException;
 use ATehnix\VkClient\Requests\Request;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Log;
+use VK\Client\VKApiClient;
+use VK\Exceptions\VKApiException;
 
 /**
  * App\Models\Media\Vk\VkPost
@@ -251,43 +254,30 @@ class VkPost extends Model {
 		$result = false;
 		try {
 			$client = $this->getClient();
-			$request = new Request('wall.getById', ['posts' => $this->getVkGroupId() . '_' . $this->getPostId()]);
-			$response = $client->send($request);
+			$response = $client->wall()->getById($this->getToken(), [
+					'posts' => $this->getVkGroupId() . '_' . $this->getPostId()
+			]);
 
-			if (0 !== count($response['response'])) {
-				$post = $response['response'][0];
+			if (0 !== count($response)) {
+				$post = $response[0];
+				$timePassed = Carbon::createFromTimestamp($post['date'])->diffInHours();
 
-				if (array_key_exists('attachments', $post)) {
-					$indexAttachments = 0;
-					foreach ($post['attachments'] as $attachment) {
-						if ('link' === $attachment['type']) {
-							$url = $attachment['link']['url'];
-							$parseLink = parse_url($url);
-							if ('youtu.be' === $parseLink['host']) {
-								$id = substr($parseLink['path'], 1);
-								//$isBlock = $this->isBlockedVideo($id);
-								$post['attachments'][$indexAttachments]['link']['is_blocked'] = $isBlock;
+				if ($timePassed < 24) {
+					//if (array_key_exists('attachments', $post)) {
+					//
+					//}
 
-								if ($isBlock) {
-									$link = '/' . preg_replace('/\//', '\/', $url) . '/';
-									$post['text'] = preg_replace($link, '', $post['text']);
-								}
-							}
-						}
-						$indexAttachments++;
-					}
+					//TODO: Обновление текста, attachments
 
-					$this->setPayload('post_attachments', $post['attachments']);
+					if ($this->getText() !== $post['text'])
+						$this->setText($post['text']);
 				}
-
-				if ($this->getText() !== $post['text'])
-					$this->setText($post['text']);
 			} else {
 				$this->delete();
 			}
 
 			$result = true;
-		} catch (VkException $exception) {
+		} catch (VKApiException $exception) {
 			Log::critical('method updateFromVk failed', ['message' => $exception->getMessage(), 'line' => $exception->getLine(), 'code' => $exception->getCode()]);
 		}
 
@@ -295,16 +285,13 @@ class VkPost extends Model {
 	}
 
 	/**
-	 * @return Client
+	 * @return VKApiClient
 	 */
-	public function getClient(): Client {
+	public function getClient(): VKApiClient {
 		if (null === $this->client) {
-			$this->client = new Client('5.85');
-			$token = $this->getToken();
-			if (null !== $token) {
-				$this->client->setDefaultToken($token);
-			}
+			$this->client = new VKApiClient();
 		}
+
 		return $this->client;
 	}
 

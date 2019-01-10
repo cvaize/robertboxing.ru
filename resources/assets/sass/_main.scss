@@ -267,3 +267,28 @@
     }
   }
 }
+
+.form-control--main{
+  //border-left: none;
+  //border-right: none;
+  //border-top: none;
+  //border-bottom: 2px solid #FF7300;
+  //color: #000000;
+  //background: transparent;
+  //border-radius: 0;
+  &, &:focus, &:hover, &:active{
+    border-left: none;
+    border-right: none;
+    border-top: none;
+    border-bottom: 2px solid #FF7300;
+    color: #000000;
+    background: transparent;
+    border-radius: 0;
+    outline: none;
+    box-shadow: none;
+    padding-left: 0;
+    padding-right: 0;
+    font-size: 1.25rem;
+    line-height: 1.5;
+  }
+}

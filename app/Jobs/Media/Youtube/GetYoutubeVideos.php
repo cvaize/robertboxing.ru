@@ -55,9 +55,7 @@ class GetYoutubeVideos implements ShouldQueue {
 	public function handle(YoutubeVideo $youtubeVideos) {
 		$this->videos = $youtubeVideos;
 		$getVideos = array_reverse($this->getVideos(), true);
-
 		$logMessage = '';
-
 		$logMessage .= Carbon::now()->toDayDateTimeString() . ' Get youtube video: ';
 
 
@@ -65,24 +63,22 @@ class GetYoutubeVideos implements ShouldQueue {
 			$payload = [];
 			$videoId = $video['id']['videoId'];
 
-			dump($videoId);
-
 			if (0 !== count($this->videos::where('video_id', $videoId)->get()))
 				continue;
 
+			$logMessage .= $videoId . ' ';
 			$payload['channelTitle'] = $video['snippet']['channelTitle'];
 			$payload['thumbnail'] = $video['snippet']['thumbnails']['high']['url'];
 			$payload['description'] = $this->getFullDescription($videoId);
 			$payload['published_at'] = strtotime($video['snippet']['publishedAt']);
-
 			$logMessage .= $videoId . ' ';
-
 			$frd = [
 					'video_id' => $videoId,
 					'title' => $video['snippet']['title'],
 					'channel_id' => $video['snippet']['channelId'],
 					'payload' => $payload
 			];
+
 			$this->videos->create($frd);
 		}
 
@@ -113,16 +109,6 @@ class GetYoutubeVideos implements ShouldQueue {
 		$videos = Youtube::listChannelVideos($channelId, $countVideos, 'date');
 		$videos = json_decode(json_encode($videos), true);
 
-		//foreach ($videos as $video) {
-		//	$ddd = strtotime($video['snippet']['publishedAt']);
-		//
-		//	dump($video['id']['videoId'] . ' --- ' . Carbon::createFromTimestamp($ddd)->toDayDateTimeString());
-		//	dump($rrr['snippet']['description']);
-		//	dump('-------');
-		//}
-		//
-		//dd('111');
-
 		return $videos;
 	}
 
@@ -132,7 +118,7 @@ class GetYoutubeVideos implements ShouldQueue {
 	 * @throws \Exception
 	 */
 	public function getFullDescription(string $id): string {
-		$videoInfo = json_decode(json_encode($video = Youtube::getVideoInfo($id)), true);
+		$videoInfo = json_decode(json_encode(Youtube::getVideoInfo($id)), true);
 		$description = $videoInfo['snippet']['description'];
 
 		return $description;

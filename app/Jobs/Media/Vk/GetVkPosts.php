@@ -3,17 +3,16 @@
 namespace App\Jobs\Media\Vk;
 
 use App\Models\Media\Vk\VkPost;
-use ATehnix\VkClient\Client;
-use ATehnix\VkClient\Exceptions\VkException;
-use ATehnix\VkClient\Requests\Request;
 use Carbon\Carbon;
+use GuzzleHttp\Client;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
+use VK\Client\VKApiClient;
+use VK\Exceptions\VKApiException;
 
 class GetVkPosts implements ShouldQueue {
 	use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
@@ -36,7 +35,12 @@ class GetVkPosts implements ShouldQueue {
 	/**
 	 * @var
 	 */
-	private $clientForVideos;
+	private $oauth;
+
+	/**
+	 * @var
+	 */
+	private $guzzleClient;
 
 	/**
 	 * @var
@@ -56,7 +60,7 @@ class GetVkPosts implements ShouldQueue {
 	/**
 	 * @var int
 	 */
-	protected $countPosts = 20;
+	protected $countPosts = 3;
 
 	/**
 	 * Create a new job instance.
@@ -70,6 +74,8 @@ class GetVkPosts implements ShouldQueue {
 
 	/**
 	 * @param VkPost $vkPosts
+	 * @throws \GuzzleHttp\Exception\GuzzleException
+	 * @throws \VK\Exceptions\VKClientException
 	 */
 	public function handle(VkPost $vkPosts) {
 		$this->vkPosts = $vkPosts;
@@ -77,7 +83,7 @@ class GetVkPosts implements ShouldQueue {
 		$hasPinned_needToUpdate = false;
 		$hasntPinned_needToUpdate = false;
 		$indexPosts = 0;
-		$getVkPosts = array_reverse($this->getPosts()['response']['items'], true);
+		$getVkPosts = array_reverse($this->getPosts()['items'], true);
 
 		$logMessage = '';
 
@@ -95,13 +101,13 @@ class GetVkPosts implements ShouldQueue {
 				}
 			}
 
-			$logMessage .= $getVkPost['id'] . ' ';
-
 			if (0 !== count($this->vkPosts::where('post_id', $getVkPost['id'])->get()))
 				continue;
 
 			if ($this->vkPosts->getVkGroupId() !== $getVkPost['from_id'])
 				continue;
+
+			$logMessage .= $getVkPost['id'] . ' ';
 
 			if (array_key_exists('copy_history', $getVkPost)) {
 				$postAttachments = [];
@@ -129,8 +135,8 @@ class GetVkPosts implements ShouldQueue {
 						$videoAccessKey = $attachment['video']['access_key'];
 						$videoInfo = $this->getVideoInfo($videoOwner, $videoId, $videoAccessKey);
 						$video = [
-								'first_frame' => $videoInfo['response']['items'][0]['photo_800'],
-								'url' => $videoInfo['response']['items'][0]['player'],
+								'first_frame' => $videoInfo['items'][0]['photo_800'],
+								'url' => $videoInfo['items'][0]['player'],
 								'isImage' => false,
 								'isVideo' => true
 						];
@@ -171,8 +177,8 @@ class GetVkPosts implements ShouldQueue {
 						$videoAccessKey = $attachment['video']['access_key'];
 						$videoInfo = $this->getVideoInfo($videoOwner, $videoId, $videoAccessKey);
 						$video = [
-								'first_frame' => $videoInfo['response']['items'][0]['photo_800'],
-								'url' => $videoInfo['response']['items'][0]['player'],
+								'first_frame' => $videoInfo['items'][0]['photo_800'],
+								'url' => $videoInfo['items'][0]['player'],
 								'isImage' => false,
 								'isVideo' => true
 						];
@@ -214,8 +220,6 @@ class GetVkPosts implements ShouldQueue {
 		}
 
 		dump($logMessage);
-
-		//return view('posts.index');
 	}
 
 	/**
@@ -256,46 +260,56 @@ class GetVkPosts implements ShouldQueue {
 	}
 
 	/**
-	 * @return Client
+	 * @return VKApiClient
 	 */
-	public function getClient(): Client {
+	public function getClient(): VKApiClient {
 		if (null === $this->client) {
-			$this->client = new Client('5.85');
-			$token = $this->getToken();
-			if (null !== $token) {
-				$this->client->setDefaultToken($token);
-			}
+			$this->client = new VKApiClient();
 		}
+
 		return $this->client;
 	}
 
 	/**
 	 * @return Client
 	 */
-	public function getClientForVideos(): Client {
-		if (null === $this->clientForVideos) {
-			$this->clientForVideos = new Client('5.85');
-			$this->clientForVideos->setDefaultToken(env('VK_FOR_VIDEOS_ACCESS_KEY'));
+	private function getGuzzleClient(): Client {
+		if (null === $this->guzzleClient) {
+			$this->guzzleClient = new Client([
+					'timeout' => 5,
+					'http_errors' => false
+			]);
 		}
-		return $this->clientForVideos;
+
+		return $this->guzzleClient;
 	}
 
 	/**
-	 * @return mixed|null
+	 * @return null|string
 	 */
-	public function getToken() {
+	private function getVideoToken(): ?string {
+		return env('VK_VIDEO_ACCESS_TOKEN') ?? null;
+	}
+
+	/**
+	 * @return null|string
+	 */
+	private function getToken(): ?string {
 		return env('VK_SERVICE_API') ?? null;
 	}
 
 	/**
-	 * @return array|null
+	 * @return mixed|null
+	 * @throws \VK\Exceptions\VKClientException
 	 */
 	public function getPosts() {
 		try {
 			$client = $this->getClient();
-			$request = new Request('wall.get', ['domain' => $this->getVkGroupName(), 'count' => $this->getCountPosts()]);
-			$response = $client->send($request);
-		} catch (VkException $exception) {
+			$response = $client->wall()->get($this->getToken(), [
+					'domain' => $this->getVkGroupName(),
+					'count' => $this->getCountPosts()
+			]);
+		} catch (VKApiException $exception) {
 			Log::critical('method getPost failed', ['message' => $exception->getMessage(), 'line' => $exception->getLine(), 'code' => $exception->getCode()]);
 		}
 
@@ -306,15 +320,17 @@ class GetVkPosts implements ShouldQueue {
 	 * @param int    $owner
 	 * @param int    $id
 	 * @param string $accessKey
-	 * @return array|null
+	 * @return mixed|null
+	 * @throws \VK\Exceptions\VKClientException
 	 */
 	public function getVideoInfo(int $owner, int $id, string $accessKey) {
 		try {
-			$client = $this->getClientForVideos();
+			$client = $this->getClient();
 			$video = $owner . '_' . $id . '_' . $accessKey;
-			$request = new Request('video.get', ['videos' => $video]);
-			$response = $client->send($request);
-		} catch (VkException $exception) {
+			$response = $client->video()->get($this->getVideoToken(), [
+					'videos' => $video
+			]);
+		} catch (VKApiException $exception) {
 			Log::critical('method getVideoInfo failed', ['message' => $exception->getMessage(), 'line' => $exception->getLine(), 'code' => $exception->getCode()]);
 		}
 

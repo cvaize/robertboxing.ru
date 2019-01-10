@@ -5,6 +5,8 @@ namespace App\Console\Commands;
 
 use Alaouy\Youtube\Facades\Youtube;
 use App\Jobs\Media\Vk\GetVkPosts;
+use App\Jobs\Media\Youtube\UpdatePublishedYoutubeVideos;
+use App\Models\Media\Youtube\YoutubeVideo;
 use Illuminate\Console\Command;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Support\Facades\Storage;
@@ -31,10 +33,13 @@ class debug extends Command {
 	}
 
 	/**
-	 *
+	 * @param YoutubeVideo $video
 	 */
-	public function handle() {
+	public function handle(YoutubeVideo $video) {
 		//$job = new GetVkPosts(true, true);
 		//$this->dispatchNow($job);
+
+		//$sss = new UpdatePublishedYoutubeVideos(true, true);
+		//dump($sss->handle($video));
 	}
 }

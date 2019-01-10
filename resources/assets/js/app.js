@@ -3,6 +3,7 @@ window.jQuery = window.$;
 require('bootstrap');
 require('owl.carousel');
 require('clip-path');
+require('jquery-mask-plugin');
 // require('imagesloaded/imagesloaded.pkgd.min.js');
 //https://gromo.github.io/jquery.scrollbar/
 require('../libs/jquery.scrollbar-gh-pages/jquery.scrollbar.min');
@@ -37,6 +38,8 @@ String.prototype.isEmpty = function()
  */
 (function ($) {
 
+	$('.js-phone-mask').mask('8(000)000-00-00');
+
 	window.handleErrorImage = function (vm) {
 		let elem = $(vm);
 		let newItem = elem.attr('data-new-item');
@@ -63,6 +66,74 @@ String.prototype.isEmpty = function()
 	});
 
 	 */
+	$('.js-form-requests__input').on('input', function () {
+		let elem = $(this);
+		let open = true;
+		let val = elem.val();
+		if(val.isEmpty()){
+			elem.addClass('is-invalid');
+		}else{
+			elem.removeClass('is-invalid');
+		}
+		$('.js-form-requests__input').each(function () {
+			let elem = $(this);
+			let val = elem.val();
+			if(val.isEmpty()){
+				open = false;
+			}
+		});
+		if(open){
+			$('.js-form-requests__collapse').collapse('show');
+		}else{
+			$('.js-form-requests__collapse').collapse('hide');
+		}
+	});
+	$('.js-form-requests').on('submit', function (e) {
+		e.preventDefault();
+		let formData = $(this).serialize();
+		let method = $(this).attr('method');
+		let action = $(this).attr('action');
+		console.log('submit', formData);
+		$.ajax({
+			type: method,
+			url: action,
+			data: formData,
+			async: true,
+			success: function (data) {
+				console.log(data);
+				if(data.type === 'success'){
+					let elem = $('.js-form-requests__collapse--form');
+					elem.on('hidden.bs.collapse', function () {
+						$('.js-form-requests__collapse--message-success').collapse('show');
+					});
+					elem.collapse('hide');
+				}
+			},
+			error: function (data) {
+				if(data.responseJSON){
+					if(data.responseJSON.errors){
+						$('[data-name]').each(function () {
+							let elem = $(this);
+							let name = elem.attr('data-name');
+							if(data.responseJSON.errors[name]){
+								let sibling = elem.siblings(".invalid-feedback");
+								if(sibling && data.responseJSON.errors[name][0]){
+									sibling.text(data.responseJSON.errors[name][0]);
+								}
+								elem.addClass('is-invalid');
+							}else{
+								elem.removeClass('is-invalid');
+							}
+						});
+					}
+				}
+				console.log(data.responseJSON);
+			}
+		});
+
+
+		return false;
+	});
 
 	$("a.js-link-anchor").on("click", function(e){
 		let anchor = $(this);

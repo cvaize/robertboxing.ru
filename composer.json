@@ -10,6 +10,7 @@
         "arcanedev/log-viewer": "^4.4",
         "artesaos/seotools": "^0.12.1",
         "atehnix/vk-client": "^1.3",
+        "buzz/laravel-google-captcha": "^2.1",
         "doctrine/dbal": "^2.9",
         "fideloper/proxy": "~3.3",
         "guzzlehttp/guzzle": "^6.3",

@@ -10,10 +10,9 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Support\Facades\Log;
+use InstagramAPI\Exception\InstagramException;
 use InstagramAPI\Response\Model\Item;
 use PhpParser\Builder;
-use Vinkla\Instagram\Instagram;
-use Vinkla\Instagram\InstagramException;
 
 class GetInstagramPosts implements ShouldQueue {
 	use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
@@ -59,6 +58,9 @@ class GetInstagramPosts implements ShouldQueue {
 	 * @return void
 	 */
 	public function handle(InstagramPost $instagramPosts) {
+
+		dd($this->getPosts());
+
 		$this->instagramPosts = $instagramPosts;
 		$getInstagramPosts = array_reverse($this->getPosts(), true);
 		$logMessage = '';
@@ -160,35 +162,9 @@ class GetInstagramPosts implements ShouldQueue {
 			$client = $this->getClient();
 			if (null !== $client) {
 				$userId = $client->people->getUserIdForName('_r_robert_r_');
-				//$userId = $client->people->getUserIdForName('im.lucky.jr');
 				$maxId = null;
 				$response = $client->timeline->getUserFeed($userId, $maxId);
 				$items = $response->getItems();
-
-				//dd($items[0]->getCaptionIsEdited());
-				//dd($items[5]);
-
-
-				//dd($items[1]);
-
-				//foreach ($items as $item) {
-				//	dump('inst post id: ' . $item->getId());
-				//	dump('inst post url: ' . $item->getItemUrl());
-				//	dump('inst post posted at: ' . $item->getDeviceTimestamp());
-				//	dump('inst post caption: ' . $item->getCaption()->getText());
-				//	dump('ins post is carousel: ' . $item->isCarouselMedia());
-				//	if ($item->isCarouselMedia()) {
-				//		foreach ($item->getCarouselMedia() as $media) {
-				//			dump('carousel item:  ' . $media->getImageVersions2()->getCandidates()[0]->getUrl());
-				//			dump('carousel item link: ' . $media->getLink());
-				//		}
-				//	}
-				//	dump('inst post has video: ' . $item->isVideoVersions());
-				//	dump('inst post has image versions' . $item->isImageVersions2());
-				//	dump('----------------');
-				//}
-				//
-				//dd('111');
 			}
 		} catch (InstagramException $exception) {
 			Log::critical('method getPost failed', ['message' => $exception->getMessage(), 'line' => $exception->getLine(), 'code' => $exception->getCode()]);

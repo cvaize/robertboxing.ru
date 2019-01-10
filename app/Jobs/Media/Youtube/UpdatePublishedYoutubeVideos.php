@@ -47,10 +47,16 @@ class UpdatePublishedYoutubeVideos implements ShouldQueue {
 		$this->videos = $youtubeVideos;
 		$logMessage = '';
 		$logMessage .= Carbon::now()->toDayDateTimeString() . ' UpdatePusblishedYoutubeVideos: ';
+		$lastTenVideos = $this->videos->posts()->take(10)->get();
 
-		foreach ($this->videos->all() as $publishedVideo) {
-			//$publishedVideo->updateFromYoutube();
-			dump($publishedVideo->getMedia());
+		foreach ($lastTenVideos as $publishedVideo) {
+			/**
+			 * @var YoutubeVideo $publishedVideo
+			 */
+			$result = $publishedVideo->updateFromYoutube();
+			$logMessage .= $publishedVideo->getId() . '-' . $result . ' ';
 		}
+
+		dump($logMessage);
 	}
 }
