@@ -36,6 +36,22 @@ String.prototype.isEmpty = function()
  * Блок кода отвечает за слайдер и его скролл
  */
 (function ($) {
+
+	window.handleErrorImage = function (vm) {
+		let elem = $(vm);
+		let newItem = elem.attr('data-new-item');
+		if(newItem){
+			$('div[data-new-item='+newItem+']').each(function () {
+				$(this).css({
+					backgroundImage: 'url(/images/no-image.png)'
+				});
+			});
+			$('img[data-new-item='+newItem+']').each(function () {
+				$(this).attr('src', '/images/no-image.png')
+			});
+		}
+	};
+
 	/**
 	 * Отказался от sticky-top
 	 $(window).scroll(function() {
@@ -47,6 +63,7 @@ String.prototype.isEmpty = function()
 	});
 
 	 */
+
 	$("a.js-link-anchor").on("click", function(e){
 		let anchor = $(this);
 		$('html, body').stop().animate({
@@ -239,6 +256,8 @@ String.prototype.isEmpty = function()
 						(caption.isEmpty()?'-flex':'')+
 						' mb-3">';
 					for (let i in item['media']) {
+						let random = (i+1)*Math.round(Math.random() * 10000000000);
+
 						let val = item['media'][i];
 						if (val.isVideo) {
 							media += '<a class="wrap-media' +
@@ -249,12 +268,16 @@ String.prototype.isEmpty = function()
 								'" rel="video">' +
 								'<div class="embed-responsive embed-responsive-16by9">\n' +
 								'<div class="embed-responsive-item">' +
-								'<div class="images-cover bg-dark w-100 h-100" style="background-image: url(' +
+								'<div class="images-cover bg-dark w-100 h-100"' +
+								' data-new-item="' + random +
+								'" onerror="handleErrorImage(this);" style="background-image: url(' +
 								((val.first_frame) ? val.first_frame : '') +
 								');"></div>' +
 								'</div>\n' +
 								'</div>' +
-								'<img class="main__news__wrap-instagram__img" src="' +
+								'<img class="main__news__wrap-instagram__img" ' +
+								' data-new-item="' + random +
+								'" onerror="handleErrorImage(this);" src="' +
 								((val.first_frame) ? val.first_frame : '') +
 								'" title="' +
 								((social === 'youtube' && item['title']) ? item['title'] : '') +
@@ -269,12 +292,16 @@ String.prototype.isEmpty = function()
 								'">' +
 								'<div class="embed-responsive embed-responsive-16by9">\n' +
 								'<div class="embed-responsive-item">' +
-								'<div class="images-cover bg-dark w-100 h-100" style="background-image: url(' +
+								'<div class="images-cover bg-dark w-100 h-100" ' +
+								' data-new-item="' + random + '"' +
+								' onerror="handleErrorImage(this);" style="background-image: url(' +
 								((val.url) ? val.url : '') +
 								');"></div>' +
 								'</div>\n' +
 								'</div>' +
-								'<img class="main__news__wrap-instagram__img" src="' +
+								'<img class="main__news__wrap-instagram__img" ' +
+								' data-new-item="' + random + '"' +
+								' onerror="handleErrorImage(this);" src="' +
 								((val.url) ? val.url : '') +
 								'" title="' +
 								((social === 'youtube' && item['title']) ? item['title'] : '') +

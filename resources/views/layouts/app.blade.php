@@ -30,7 +30,7 @@
 	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
 
 	<!-- Styles -->
-	<link href="{{ asset('css/app.css') }}" rel="stylesheet">
+	<link href="{{ mix('css/app.css') }}" rel="stylesheet">
 </head>
 <body>
 
@@ -42,6 +42,6 @@
 </main>
 @include('layouts.modules._footer')
 <!-- Scripts -->
-<script src="{{ asset('js/app.js') }}"></script>
+<script src="{{ mix('js/app.js') }}"></script>
 </body>
 </html>

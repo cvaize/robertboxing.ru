@@ -81,18 +81,25 @@ class YoutubeVideo extends Model {
 	}
 
 	/**
+	 * @param string $title
+	 */
+	public function setTitle(string $title) {
+		$this->{'title'} = $title;
+	}
+
+	/**
 	 * @return string
 	 */
 	public function getLink(): string {
 		return 'https://www.youtube.com/watch?v=' . $this->getVideoId();
 	}
 
-    /**
-     * @return array
-     */
-    public function scopePosts(Builder $query): Builder {
-        return $query->orderByDesc('id');
-    }
+	/**
+	 * @return array
+	 */
+	public function scopePosts(Builder $query): Builder {
+		return $query->orderByDesc('id');
+	}
 
 	/**
 	 * @return string
@@ -142,6 +149,13 @@ class YoutubeVideo extends Model {
 	}
 
 	/**
+	 * @param string $description
+	 */
+	public function setDescription(string $description) {
+		$this->setPayload('description', $description);
+	}
+
+	/**
 	 * @return bool
 	 */
 	public function updateFromYoutube(): bool {
@@ -149,10 +163,26 @@ class YoutubeVideo extends Model {
 
 		try {
 			$videoId = $this->getVideoId();
-			$video = Youtube::getVideoInfo($videoId);
+			$video = json_decode(json_encode(Youtube::getVideoInfo($videoId)), true);
+			$payload = $this->getPayload();
+			$oldTitle = $this->getTitle();
+			$newTitle = $video['snippet']['title'];
+			$oldDescription = $this->getDescription();
+			$newDescription = $video['snippet']['description'];
 
-			dump($video);
+			if ($video) {
+				if ($oldTitle !== $newTitle) {
+					$this->setTitle($video['snippet']['title']);
+				}
 
+				if ($oldDescription !== $newDescription) {
+					$this->setDescription($newDescription);
+				}
+			} else {
+				$this->delete();
+			}
+
+			$this->save();
 			$result = true;
 		} catch (\Exception $exception) {
 			Log::critical('method updateFromYoutube failed', ['message' => $exception->getMessage(), 'line' => $exception->getLine(), 'code' => $exception->getCode()]);

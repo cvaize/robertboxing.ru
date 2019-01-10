@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Log;
+use InstagramAPI\Exception\InstagramException;
 use Vinkla\Instagram\Instagram;
 
 /**
@@ -62,6 +63,13 @@ class InstagramPost extends Model {
 	 * @return int
 	 */
 	public function getKey(): int {
+		return $this->{'id'};
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getId(): int {
 		return $this->{'id'};
 	}
 
@@ -195,21 +203,11 @@ class InstagramPost extends Model {
 		return $this->getPayload()['caption'] ?? null;
 	}
 
-    /**
-     * @return array
-     */
-    public function scopePosts(Builder $query): Builder {
-        return $query->orderByDesc('id');
-    }
-
 	/**
-	 * @param Builder $query
-	 * @return Builder
+	 * @return array
 	 */
-	public function scopePublished(Builder $query): Builder {
-		return $query->orderByDesc('id')
-				->where('is_deleted', '!=', '1')
-				->take(3);
+	public function scopePosts(Builder $query): Builder {
+		return $query->orderByDesc('id');
 	}
 
 	/**
@@ -221,40 +219,23 @@ class InstagramPost extends Model {
 
 		try {
 			$postId = $this->getPostId();
-			$link = $this->getLink();
 			$getPostInstagram = $this->getPostInstagram($postId);
-			$code = $getPostInstagram['meta']['code'];
+			$status = $getPostInstagram['status'];
 			$payload = $this->getPayload();
 
-			if (400 === $code) {
-				$this->setDeleted();
-			} elseif (200 === $code) {
-				$post = $getPostInstagram['data'];
+			if ('OK' === $status) {
+				$post = $getPostInstagram['item'];
 				if (null !== $post['caption']) {
-					$caption_text = $this->getCaptionText($post['caption']['text']);
-
-					if ($payload['caption'] !== $caption_text) {
-						$this->setPayload('caption', $caption_text);
+					if ($payload['caption'] !== $post['caption']) {
+						$this->setPayload('caption', $post['caption']);
 					}
 				} else {
 					if (strlen($payload['caption']) !== 0) {
 						$this->setPayload('caption', '');
 					}
 				}
-
-				if (0 !== count($post['tags'])) {
-					$hashtags = $this->getHashtags($post['tags']);
-
-					if ($payload['tags'] !== $hashtags) {
-						$this->setPayload('tags', $hashtags);
-					}
-				} else {
-					if (strlen($payload['tags']) !== 0) {
-						$this->setPayload('tags', '');
-					}
-				}
 			} else {
-				dump('something is wrong, statusCode is ' . $code);
+				$this->setDeleted();
 			}
 
 			$this->save();
@@ -265,31 +246,6 @@ class InstagramPost extends Model {
 		}
 
 		return $result;
-	}
-
-	/**
-	 * @param array $tagsArray
-	 * @return string
-	 */
-	private function getHashtags(array $tagsArray): string {
-		$tags = '';
-		foreach ($tagsArray as $tag) {
-			$tags .= '#' . $tag . ' ';
-		}
-		trim($tags);
-
-		return $tags;
-	}
-
-	/**
-	 * @param string $text
-	 * @return string
-	 */
-	private function getCaptionText(string $text): string {
-		$captionText = preg_replace('/#\S*\w/iu', '', $text);
-		$captionText = trim($captionText);
-
-		return $captionText;
 	}
 
 	/**
@@ -311,9 +267,31 @@ class InstagramPost extends Model {
 	}
 
 	/**
+	 * @return \InstagramAPI\Instagram
+	 */
+	private function getClient(): \InstagramAPI\Instagram {
+		if (null === $this->client) {
+			$username = env("INSTAGRAM_LOGIN");
+			$password = env("INSTAGRAM_PASSWORD");
+			$debug = false;
+			$truncatedDebug = false;
+
+			$this->client = new \InstagramAPI\Instagram($debug, $truncatedDebug);
+
+			try {
+				$this->client->login($username, $password);
+			} catch (\InstagramAPI\Exception\InstagramException $exception) {
+				Log::critical('method getClient failed', ['message' => $exception->getMessage(), 'line' => $exception->getLine(), 'code' => $exception->getCode()]);
+			}
+		}
+
+		return $this->client ?? null;
+	}
+
+	/**
 	 * @return Client
 	 */
-	private function getClientGuzzle(): Client {
+	public function getClientGuzzle(): Client {
 		if (null === $this->clientGuzzle) {
 			$this->clientGuzzle = new Client([
 					'timeout' => 5,
@@ -327,16 +305,26 @@ class InstagramPost extends Model {
 	/**
 	 * @param string $postId
 	 * @return array
-	 * @throws \GuzzleHttp\Exception\GuzzleException
 	 */
 	private function getPostInstagram(string $postId): array {
-		$guzzleClient = $this->getClientGuzzle();
-		$token = $this->getToken();
+		$client = $this->getClient();
+		$result = ['status' => 'FAILED'];
+		if (null !== $client) {
+			try {
+				$instagramPost = $client->media->getInfo($postId)->asArray();
+				$result['status'] = 'OK';
 
-		$response = $guzzleClient->request('GET', 'https://api.instagram.com/v1/media/' . $postId . '/?access_token=' . $token)->getBody()->getContents();
-		$response = json_decode($response, true);
+				if (null !== $instagramPost['items'][0]['caption']) {
+					$result['item']['caption'] = $instagramPost['items'][0]['caption']['text'];
+				} else {
+					$result['item']['caption']['caption'] = '';
+				}
+			} catch (InstagramException $exception) {
+				Log::critical('method getPost failed', ['message' => $exception->getMessage(), 'line' => $exception->getLine(), 'code' => $exception->getCode()]);
+			}
+		}
 
-		return $response;
+		return $result;
 	}
 
 	/**
