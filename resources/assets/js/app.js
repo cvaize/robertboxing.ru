@@ -201,17 +201,7 @@ String.prototype.isEmpty = function()
 			}
 
 			function reInitLoadedImages(classCollapse) {
-				$('.js-photobox').photobox('a', {time: 0});
-				// $('.'+classCollapse).imagesLoaded( function() {
-				// 	$('.'+classCollapse).montage({
-				// 		fillLastRow				: true,
-				// 		alternateHeight			: true,
-				// 		alternateHeightRange	: {
-				// 			min	: 90,
-				// 			max	: 240
-				// 		}
-				// 	});
-				// });
+				$('.js-photobox').photobox('a', {time: 0, zoomable: false});
 			}
 
 		}
