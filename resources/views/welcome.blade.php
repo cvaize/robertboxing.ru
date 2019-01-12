@@ -166,7 +166,7 @@ $slider = [
                     Работаем с 8:00 до 23:00 ежедневно
                 </p>
             </div>
-            <div class="col-12">
+            <div id="about" class="col-12">
                 <div class="d-flex align-items-center justify-content-center">
                     <div class="text-rotate-skew text-rotate-skew__h1 text-uppercase text-center color-orange text-skew-effect w-100 h-100 font-italic">
                         Заряжаю на тренировку
@@ -175,7 +175,7 @@ $slider = [
             </div>
         </div>
     </div>
-    <div id="about" class="container-fluid--max main__bg-tree mt-md-5">
+    <div class="container-fluid--max main__bg-tree mt-md-5">
         <div class="main__bg-tree__img"></div>
         <div class="container">
             <div class="row no-gutters">
@@ -326,4 +326,5 @@ $slider = [
             <img class="w-100" src="/img/welcome/vector-bottom-top.svg">
         </div>
     </div>
+
 @endsection

@@ -54,7 +54,8 @@
 	.thumbs .pbWrapper{ padding:0; margin:0; }
 	.error .pbWrapperr img{ width:0; }
 
-	.pbWrapper > div{ display:none; width:624px; height:351px; vertical-align:middle; border-radius:5px; background:rgba(0,0,0,.5); }
+	/*.pbWrapper > div{ display:none; width:624px; height:351px; vertical-align:middle; border-radius:5px; background:rgba(0,0,0,.5); }*/
+	.pbWrapper > div{ display:none; width:711px; height:400px; vertical-align:middle; border-radius:5px; background:rgba(0,0,0,.5); }
 	.video > .pbWrapper > div{ display:inline-block; }
 
 	#pbOverlay iframe,

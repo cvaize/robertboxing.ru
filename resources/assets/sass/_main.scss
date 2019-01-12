@@ -23,7 +23,11 @@
     position: relative;
     padding: 8rem 0;
     @media (max-width: 480px) {
-      padding: 5rem 0;
+      //padding: 5rem 0;
+      margin-top: 8rem;
+      padding-top: 0;
+      padding-bottom: 1rem;
+      background: #FF7300;
     }
     &__img{
       position: absolute;
@@ -45,9 +49,13 @@
       @media (max-width: 480px) {
         //-webkit-clip-path: polygon(0 12%, 51% 0, 50% 12%, 100% 0, 100% 88%, 50% 100%, 50% 88%, 0 100%);
         //clip-path: polygon(0 12%, 51% 0, 50% 12%, 100% 0, 100% 88%, 50% 100%, 50% 88%, 0 100%);
-        -webkit-clip-path: polygon(0 12%, 100% 0, 100% 88%, 0 100%);
-        clip-path: polygon(0 12%, 100% 0, 100% 88%, 0 100%);
-        filter: blur(5px);
+        -webkit-clip-path: polygon(0 24%, 100% 0, 100% 88%, 0 100%);
+        clip-path: polygon(0 24%, 100% 0, 100% 88%, 0 100%);
+        height: 100vw;
+        top: -10rem;
+        margin-bottom: -9rem;
+        position: relative;
+        //filter: blur(5px);
       }
 
     }
