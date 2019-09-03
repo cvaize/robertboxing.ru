@@ -30,9 +30,15 @@ return [
     ],
 
     'stripe' => [
-        'model' => App\User::class,
+        'model' => App\Models\Users\User::class,
         'key' => env('STRIPE_KEY'),
         'secret' => env('STRIPE_SECRET'),
     ],
+
+		'smscru' => [
+				'login'  => env('SMSCRU_LOGIN'),
+				'secret' => env('SMSCRU_SECRET'),
+				'sender' => 'John_Doe'
+		],
 
 ];

@@ -5,6 +5,8 @@
 @import './main';
 @import './buttons';
 @import './footer';
+@import './adminPanel';
+@import './components/preloader';
 
 
 
@@ -12,8 +14,9 @@
 @import "~owl.carousel/dist/assets/owl.carousel.min.css";
 @import "~owl.carousel/dist/assets/owl.theme.default.min.css";
 
-@import "~malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.css";
+//@import "~malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.css";
 @import "../libs/jquery.scrollbar-gh-pages/jquery.scrollbar.css";
-@import "../libs/photobox-master/photobox/photobox.css";
+//@import "../libs/photobox-master/photobox/photobox.css";
+@import "../libs/fancybox-master/dist/jquery.fancybox.min.css";
 
 @import "components/scroller";

@@ -35,6 +35,14 @@ use Vinkla\Instagram\Instagram;
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Media\Instagram\InstagramPost whereUpdatedAt($value)
  * @mixin \Eloquent
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Media\Instagram\InstagramPost published()
+ * @property string|null                     $deleted_at
+ * @method static bool|null forceDelete()
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\Media\Instagram\InstagramPost onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Media\Instagram\InstagramPost posts()
+ * @method static bool|null restore()
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Media\Instagram\InstagramPost whereDeletedAt($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\Media\Instagram\InstagramPost withTrashed()
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\Media\Instagram\InstagramPost withoutTrashed()
  */
 class InstagramPost extends Model {
 	use SoftDeletes;
@@ -211,31 +219,25 @@ class InstagramPost extends Model {
 	}
 
 	/**
+	 * @param array $newPost
 	 * @return bool
-	 * @throws \GuzzleHttp\Exception\GuzzleException
 	 */
-	public function updateFromInstagram(): bool {
+	public function updateFromInstagram(array $newPost): bool {
 		$result = false;
 
 		try {
-			$postId = $this->getPostId();
-			$getPostInstagram = $this->getPostInstagram($postId);
-			$status = $getPostInstagram['status'];
 			$payload = $this->getPayload();
 
-			if ('OK' === $status) {
-				$post = $getPostInstagram['item'];
-				if (null !== $post['caption']) {
-					if ($payload['caption'] !== $post['caption']) {
-						$this->setPayload('caption', $post['caption']);
-					}
-				} else {
-					if (strlen($payload['caption']) !== 0) {
-						$this->setPayload('caption', '');
-					}
+			$this->setPayload('media', $newPost['media']);
+
+			if (null !== $newPost['caption']) {
+				if ($payload['caption'] !== $newPost['caption']) {
+					$this->setPayload('caption', $newPost['caption']);
 				}
 			} else {
-				$this->setDeleted();
+				if (strlen($payload['caption']) !== 0) {
+					$this->setPayload('caption', '');
+				}
 			}
 
 			$this->save();
@@ -273,6 +275,7 @@ class InstagramPost extends Model {
 		if (null === $this->client) {
 			$username = env("INSTAGRAM_LOGIN");
 			$password = env("INSTAGRAM_PASSWORD");
+
 			$debug = false;
 			$truncatedDebug = false;
 
@@ -306,23 +309,31 @@ class InstagramPost extends Model {
 	 * @param string $postId
 	 * @return array
 	 */
-	private function getPostInstagram(string $postId): array {
+	private function getPostInstagram(string $postId, string $link): array {
 		$client = $this->getClient();
 		$result = ['status' => 'FAILED'];
-		if (null !== $client) {
-			try {
-				$instagramPost = $client->media->getInfo($postId)->asArray();
-				$result['status'] = 'OK';
 
-				if (null !== $instagramPost['items'][0]['caption']) {
-					$result['item']['caption'] = $instagramPost['items'][0]['caption']['text'];
-				} else {
-					$result['item']['caption']['caption'] = '';
+		if (null !== $client) {
+			$statusCode = $this->getCodeLink($link);
+
+			if (200 === $statusCode) {
+				try {
+					$instagramPost = $client->media->getInfo($postId)->asArray();
+					$result['status'] = 'OK';
+
+					if (null !== $instagramPost['items'][0]['caption']) {
+						$result['item']['caption'] = $instagramPost['items'][0]['caption']['text'];
+					} else {
+						$result['item']['caption']['caption'] = '';
+					}
+				} catch (InstagramException $exception) {
+					Log::critical('method getPost failed', ['message' => $exception->getMessage(), 'line' => $exception->getLine(), 'code' => $exception->getCode()]);
+					dump($exception->getMessage());
 				}
-			} catch (InstagramException $exception) {
-				Log::critical('method getPost failed', ['message' => $exception->getMessage(), 'line' => $exception->getLine(), 'code' => $exception->getCode()]);
 			}
 		}
+
+		dump($result);
 
 		return $result;
 	}

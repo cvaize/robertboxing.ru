@@ -13,13 +13,6 @@
 				<h2>События в Горе</h2>
 			</div>
 			<div class="vk-posts d-flex flex-column justify-content-center">
-				@if(0 !== count($postPinned))
-					@foreach($postPinned as $vkPost)
-						@include('vkposts._post', [
-							'post' => $vkPost
-						])
-					@endforeach
-				@endif
 				@forelse($vkPosts as $vkPost)
 					@include('vkposts._post', [
 						'post' => $vkPost

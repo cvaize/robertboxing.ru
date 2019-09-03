@@ -31,6 +31,7 @@
         "lodash": "^4.17.11",
         "malihu-custom-scrollbar-plugin": "^3.1.5",
         "owl.carousel": "^2.3.4",
+        "pace": "github:HubSpot/pace#v1.0.2",
         "popper.js": "^1.14.6",
         "slick-carousel": "^1.8.1",
         "sly": "github:darsain/sly",

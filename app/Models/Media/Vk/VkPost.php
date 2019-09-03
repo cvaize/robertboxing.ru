@@ -2,13 +2,8 @@
 
 namespace App\Models\Media\Vk;
 
-use Alaouy\Youtube\Facades\Youtube;
-use ATehnix\VkClient\Client;
-use ATehnix\VkClient\Exceptions\VkException;
-use ATehnix\VkClient\Requests\Request;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Log;
@@ -40,6 +35,16 @@ use VK\Exceptions\VKApiException;
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Media\Vk\VkPost whereUpdatedAt($value)
  * @property int|null                        $is_deleted
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Media\Vk\VkPost whereIsDeleted($value)
+ * @property int|null $is_pinned
+ * @property string|null $deleted_at
+ * @method static bool|null forceDelete()
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\Media\Vk\VkPost onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Media\Vk\VkPost posts()
+ * @method static bool|null restore()
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Media\Vk\VkPost whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Media\Vk\VkPost whereIsPinned($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\Media\Vk\VkPost withTrashed()
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\Media\Vk\VkPost withoutTrashed()
  */
 class VkPost extends Model {
 	use SoftDeletes;
@@ -263,19 +268,59 @@ class VkPost extends Model {
 				$timePassed = Carbon::createFromTimestamp($post['date'])->diffInHours();
 
 				if ($timePassed < 24) {
-					//if (array_key_exists('attachments', $post)) {
-					//
-					//}
+					if (array_key_exists('attachments', $post)) {
+						$postAttachments = [];
+						foreach ($post['attachments'] as $attachment) {
+							if ('photo' === $attachment['type']) {
+								$maxWidth = 0;
+								$indexMaxSize = null;
 
-					//TODO: Обновление текста, attachments
+								foreach ($attachment['photo']['sizes'] as $key => $item) {
+									if ($item['width'] > $maxWidth)
+										$maxWidth = $item['width'];
+									$indexMaxSize = $key;
+								}
+
+								$image = [
+										'url' => $attachment['photo']['sizes'][$indexMaxSize]['url'],
+										'isImage' => true,
+										'isVideo' => false
+								];
+
+								$postAttachments[] = $image;
+							} elseif ('video' === $attachment['type']) {
+								$videoOwner = $attachment['video']['owner_id'];
+								$videoId = $attachment['video']['id'];
+								$videoAccessKey = $attachment['video']['access_key'];
+								$videoInfo = $this->getVideoInfo($videoOwner, $videoId, $videoAccessKey);
+								$video = [
+										'first_frame' => $videoInfo['items'][0]['photo_800'],
+										'url' => $videoInfo['items'][0]['player'],
+										'isImage' => false,
+										'isVideo' => true
+								];
+
+								$postAttachments[] = $video;
+							}
+						}
+
+						$this->setPayload('post_attachments', $postAttachments);
+					}
+
+					if ('' !== $post['text']) {
+						$post['text'] = $this->replaceLinks($post['text']);
+						$post['text'] = $this->replaceVkLinks($post['text']);
+					}
 
 					if ($this->getText() !== $post['text'])
 						$this->setText($post['text']);
+
 				}
 			} else {
 				$this->delete();
 			}
 
+			$this->save();
 			$result = true;
 		} catch (VKApiException $exception) {
 			Log::critical('method updateFromVk failed', ['message' => $exception->getMessage(), 'line' => $exception->getLine(), 'code' => $exception->getCode()]);
@@ -285,9 +330,46 @@ class VkPost extends Model {
 	}
 
 	/**
+	 * @param string $text
+	 *
+	 * @return string
+	 */
+	private function replaceVkLinks(string $text): string {
+		$countVkLinks = preg_match_all("/\[[^]]*\]/ui", $text, $vkLinks, PREG_PATTERN_ORDER);
+		foreach ($vkLinks[0] as $vkLink) {
+			$pieces = preg_split('/[\[\]\|]/', $vkLink);
+			$target = '/\[' . $pieces[1] . '\|' . $pieces[2] . '\]/ui';
+
+			if (!preg_match('/id|club/', $pieces[1]))
+				continue;
+
+			$newLink = '<a class="vk-post-link" target="_blank" href="https://vk.com/' . $pieces[1] . '">' . $pieces[2] . '</a>';
+			$text = preg_replace($target, $newLink, $text);
+		}
+
+		return $text;
+	}
+
+	/**
+	 * @param string $text
+	 *
+	 * @return string
+	 */
+	private function replaceLinks(string $text): string {
+		$countLinks = preg_match_all("/(https|http):\/\/[^\s()]*/ui", $text, $links, PREG_PATTERN_ORDER);
+		foreach ($links[0] as $link) {
+			$newLink = '<a class="vk-post-urllink" target="_blank" href="' . $link . '">' . $link . '</a>';
+			$link = '/' . preg_replace('/\//', '\/', $link) . '/';
+			$text = preg_replace($link, $newLink, $text);
+		}
+
+		return $text;
+	}
+
+	/**
 	 * @return VKApiClient
 	 */
-	public function getClient(): VKApiClient {
+	private function getClient(): VKApiClient {
 		if (null === $this->client) {
 			$this->client = new VKApiClient();
 		}
@@ -296,9 +378,37 @@ class VkPost extends Model {
 	}
 
 	/**
+	 * @param int    $owner
+	 * @param int    $id
+	 * @param string $accessKey
 	 * @return mixed|null
+	 * @throws \VK\Exceptions\VKClientException
 	 */
-	public function getToken() {
+	private function getVideoInfo(int $owner, int $id, string $accessKey) {
+		try {
+			$client = $this->getClient();
+			$video = $owner . '_' . $id . '_' . $accessKey;
+			$response = $client->video()->get($this->getVideoToken(), [
+					'videos' => $video
+			]);
+		} catch (VKApiException $exception) {
+			Log::critical('method getVideoInfo failed', ['message' => $exception->getMessage(), 'line' => $exception->getLine(), 'code' => $exception->getCode()]);
+		}
+
+		return $response ?? null;
+	}
+
+	/**
+	 * @return null|string
+	 */
+	private function getToken(): ?string  {
 		return env('VK_SERVICE_API') ?? null;
+	}
+
+	/**
+	 * @return null|string
+	 */
+	private function getVideoToken(): ?string {
+		return env('VK_VIDEO_ACCESS_TOKEN') ?? null;
 	}
 }

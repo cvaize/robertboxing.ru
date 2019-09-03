@@ -26,7 +26,7 @@ class RegisterController extends Controller {
 	 *
 	 * @var string
 	 */
-	protected $redirectTo = '/';
+	protected $redirectTo = '/admin/requests';
 
 	/**
 	 * Create a new controller instance.
@@ -47,9 +47,9 @@ class RegisterController extends Controller {
 		return Validator::make($data, [
 				'l_name' => 'required|string|max:255',
 				'f_name' => 'required|string|max:255',
-				'm_name' => 'string|max:255',
-				'phone' => 'string|max:255',
-				'telegram' => 'string|max:255',
+				'm_name' => 'string|max:255|nullable',
+				'phone' => 'string|max:255|nullable',
+				'telegram' => 'string|max:255|nullable',
 				'email' => 'required|string|email|max:255|unique:users',
 				'password' => 'required|string|min:6|confirmed',
 		]);
@@ -61,7 +61,7 @@ class RegisterController extends Controller {
 	 * @param  array $data
 	 * @return \App\Models\Users\User
 	 */
-	protected function create(array $data) {
+/*	protected function create(array $data) {
 		return User::create([
 				'l_name' => $data['l_name'],
 				'f_name' => $data['f_name'],
@@ -71,5 +71,5 @@ class RegisterController extends Controller {
 				'telegram' => $data['telegram'],
 				'password' => bcrypt($data['password']),
 		]);
-	}
+	}*/
 }

@@ -10,14 +10,65 @@
     }
   }
   &__box-bg-action{
-    -webkit-clip-path: polygon(5% 0, 100% 0, 95% 100%, 0% 100%);
-    clip-path: polygon(5% 0, 100% 0, 95% 100%, 0% 100%);
+    width: auto;
 
-    @media (max-width: 480px) {
+    @include media-breakpoint-up(lg){
+      width: 584px;
+      position: relative;
+      left: -54px;
       -webkit-clip-path: polygon(8% 0, 100% 0, 92% 100%, 0% 100%);
       clip-path: polygon(8% 0, 100% 0, 92% 100%, 0% 100%);
     }
     background: linear-gradient(19.62deg, #F9F5ED 39.04%, rgba(249, 245, 237, 0.28) 116.66%);
+  }
+  &__box-training{
+    width: auto;
+
+    @include media-breakpoint-up(lg){
+      width: 584px;
+      position: relative;
+      left: -54px;
+      margin-left: 1rem;
+    }
+    .subtext{
+      text-transform: uppercase;
+      font-size: 1.8rem;
+      line-height: 2.4rem;
+      font-family: 'Oswald', sans-serif;
+      font-weight: normal;
+      color: #FF7800;
+    }
+  }
+  &__schedule-training{
+    &__title{
+      font-size: 1.8rem;
+      line-height: 2.6rem;
+      font-weight: 400;
+      color: #FF7800;
+      &-day{
+        width: 90px !important;
+      }
+    }
+    .subtext{
+      font-size: 1.45rem;
+      line-height: 2.4rem;
+      font-weight: 400;
+      color: #FF7800;
+      @include media-breakpoint-up(lg){
+        padding-left: 4rem;
+      }
+      @include media-breakpoint-down(md) {
+        padding-left: 1.5rem;
+        line-height: 1.5rem;
+        margin-bottom: 1rem;
+      }
+    }
+  }
+  &__scroll-bar-container {
+    @include media-breakpoint-up(lg){
+      -webkit-clip-path: polygon(6.1% 0, 100% 0, 100% 100%, 0% 100%);
+      clip-path: polygon(6.1% 0, 100% 0, 100% 100%, 0% 100%);
+    }
   }
   &__bg-tree{
     position: relative;
@@ -35,7 +86,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background-image: url(/img/welcome/main.jpg);
+      //background-image: url(/img/welcome/main.jpg);
       background-repeat: no-repeat;
       -webkit-background-size: cover;
       background-size: cover;
@@ -65,14 +116,20 @@
       font-weight: 300;
       line-height: 1.4;
       font-size: 1.25rem;
-      margin-bottom: 8rem;
+      margin-bottom: 3.5rem;
       @include media-breakpoint-down(md){
         margin-bottom: 1rem;
-        margin-top: 9rem;
+        margin-top: 4rem; //was 9
         font-size: 1rem;
       }
       @media (max-width: 480px) {
         margin-top: 1rem;
+      }
+    }
+    &__text:last-child{
+      margin-bottom: 7em;
+      @include media-breakpoint-down(md){
+        margin-bottom: 1rem;
       }
     }
   }
@@ -94,6 +151,47 @@
         font-size: .9rem;
       }
 
+    }
+  }
+  &__box-feedback-button{
+    width: auto;
+    @include media-breakpoint-up(lg){
+      //width: 584px;
+      //position: relative;
+      //left: -54px;
+    }
+  }
+  &__box-feedback{
+    //display: none !important;
+    //width: auto;
+
+    @include media-breakpoint-up(lg){
+      width: 980px !important;
+      max-width: none;
+      position: relative;
+      //left: -54px;
+      -webkit-clip-path: polygon(6.2% 0, 100% 0, 93.8% 100%, 0% 100%);
+      clip-path: polygon(6.2% 0, 100% 0, 93.8% 100%, 0% 100%);
+    }
+    background: linear-gradient(19.62deg, #F9F5ED 39.04%, rgba(249, 245, 237, 0.28) 116.66%);
+
+    .textarea-background{
+      height: 180px;
+      background-color: #fff;
+
+      @include media-breakpoint-up(lg) {
+        -webkit-clip-path: polygon(3% 0, 100% 0, 97% 100%, 0% 100%);
+        clip-path: polygon(3% 0, 100% 0, 97% 100%, 0% 100%);
+      }
+
+      textarea {
+        margin: 0 auto !important;
+        height: 160px !important;
+        border: none;
+        &:focus{
+          box-shadow: none;
+        }
+      }
     }
   }
   &__news{
@@ -209,7 +307,7 @@
         }
       }
       &__dots{
-        color: #2259AD;
+        color: #fff;
         padding: 0 1rem;
         font-size: 1.25rem;
         font-family: 'Roboto Condensed', sans-serif;
@@ -219,7 +317,7 @@
         margin-bottom: 2rem;
         user-select: none;
         &.active{
-          color: #FF1842;
+          color: #000;
         }
       }
     }
@@ -299,4 +397,27 @@
     font-size: 1.25rem;
     line-height: 1.5;
   }
+}
+.halk-link {
+  color: #FF7300;
+  text-decoration: none;
+}
+.halk-link:hover {
+  color: rgba(255, 120, 0, 0.75);
+  text-decoration: none;
+}
+.robert-link {
+  color: #fff;
+}
+.robert-link:hover {
+  color: #fff;
+  text-decoration: none;
+}
+#training-link {
+  color: #fff;
+  cursor: pointer;
+}
+#training-link:hover {
+  color: #fff;
+  text-decoration: none;
 }

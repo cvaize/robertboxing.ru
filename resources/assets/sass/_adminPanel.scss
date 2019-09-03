@@ -1,0 +1,123 @@
+.user {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    &-name,
+    &-phone,
+    &-email {
+        @media (min-width: 576px) and (max-width: 991.98px) {
+            padding-bottom: .75rem;
+            border-bottom: 1px solid #dee2e6;
+        }
+    }
+
+    &-smsable {
+        color: grey;
+
+        &--active {
+            color: #34bd00;
+        }
+    }
+
+    &-emailable {
+        color: grey;
+
+        &--active {
+            color: #34bd00;
+        }
+    }
+
+    &__request {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+
+        &-sms {
+            color: grey;
+
+            &--active {
+                color: #34bd00;
+            }
+        }
+
+        &-email {
+            color: grey;
+
+            &--active {
+                color: #34bd00;
+            }
+        }
+
+        &-id {
+            @include media-breakpoint-down(xs){
+                border-bottom: 1px solid #dee2e6;
+            }
+        }
+    }
+
+    &__feedback {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+
+        &-status {
+            &--processing {
+                color: grey;
+            }
+
+            &--approved {
+                color: #34bd00;
+            }
+
+            &--not-approved {
+                color: #bd0d00;
+            }
+        }
+
+        &-id {
+            @include media-breakpoint-down(xs){
+                border-bottom: 1px solid #dee2e6;
+            }
+        }
+
+        &-name {
+            @include media-breakpoint-down(xs){
+                font-weight: bold;
+            }
+        }
+    }
+}
+.form-group-custom {
+    .button--search {
+        @media (max-width: 991.98px) {
+            display: none !important;
+        }
+        @media (min-width: 992px)  {
+            display: flex;
+        }
+    }
+    .input-group-custom {
+        @media (min-width: 992px) {
+            .input-group-append {
+                display: none;
+            }
+            .form-control:not(:last-child), .input-group > .custom-select:not(:last-child) {
+                border-top-right-radius: .25rem;
+                border-bottom-right-radius: .25rem;
+            }
+        }
+        @media (max-width: 991.98px) {
+            .input-group-append {
+                display: flex;
+                &:hover{
+                    cursor: pointer;
+                }
+            }
+            .form-control:not(:last-child), .input-group > .custom-select:not(:last-child) {
+                border-top-right-radius: 0;
+                border-bottom-right-radius: 0;
+            }
+        }
+    }
+}

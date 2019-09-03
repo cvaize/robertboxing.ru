@@ -35,6 +35,14 @@ use Illuminate\Support\Facades\Log;
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Media\Youtube\YoutubeVideo whereVideoId($value)
  * @mixin \Eloquent
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Media\Youtube\YoutubeVideo published()
+ * @property string|null $deleted_at
+ * @method static bool|null forceDelete()
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\Media\Youtube\YoutubeVideo onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Media\Youtube\YoutubeVideo posts()
+ * @method static bool|null restore()
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Media\Youtube\YoutubeVideo whereDeletedAt($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\Media\Youtube\YoutubeVideo withTrashed()
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\Media\Youtube\YoutubeVideo withoutTrashed()
  */
 class YoutubeVideo extends Model {
 	use SoftDeletes;

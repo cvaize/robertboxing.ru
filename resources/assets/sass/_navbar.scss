@@ -6,7 +6,24 @@
 }
 .navbar-toggler{
   border-color: #FF7800;
-  margin-left: 1rem;
+  //margin-left: 1rem;
+  margin-right: 1rem;
+}
+.nav-text {
+  font-size: 1.25rem;
+  color: #000000;
+  padding: 0 1rem 0 1rem;
+  @media (min-width: 992px) {
+    padding-right: 2.5rem;
+    padding-left: 2.5rem;
+  }
+}
+.navbar-expand-lg .navbar-nav .nav-text{
+  padding: 0 1rem 0 1rem;
+  @media (min-width: 992px) {
+    padding-right: 2.5rem;
+    padding-left: 2.5rem;
+  }
 }
 .nav-link{
   font-size: 1.25rem;
@@ -24,6 +41,19 @@
     &:hover, &:active{
       color: rgba(255, 120, 0, 0.75);
     }
+  }
+}
+.nav-link--active{
+  font-size: 1.25rem;
+  color: #FF7800;
+  padding: 0 1rem 0 1rem;
+  @media (min-width: 992px) {
+    padding-right: 2.5rem;
+    padding-left: 2.5rem;
+  }
+  &:hover{
+    color: rgba(255, 120, 0, 0.75);
+    text-decoration: none;
   }
 }
 .navbar-expand-lg .navbar-nav .nav-link{

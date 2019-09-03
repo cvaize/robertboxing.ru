@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('adminPanel.admin')
 
 @section('content')
 	<div class="container">
@@ -43,7 +43,7 @@
 								<label for="m_name" class="col-md-4 control-label">Middle name</label>
 
 								<div class="col-md-6">
-									<input id="m_name" type="text" class="form-control" name="m_name" value="{{ old('m_name') }}" required autofocus>
+									<input id="m_name" type="text" class="form-control" name="m_name" value="{{ old('m_name') }}"  autofocus>
 
 									@if ($errors->has('m_name'))
 										<span class="help-block">
@@ -71,7 +71,7 @@
 								<label for="telegram" class="col-md-4 control-label">Telegram</label>
 
 								<div class="col-md-6">
-									<input id="telegram" type="text" class="form-control" name="telegram" value="{{ old('telegram') }}" required autofocus>
+									<input id="telegram" type="text" class="form-control" name="telegram" value="{{ old('telegram') }}"  autofocus>
 
 									@if ($errors->has('telegram'))
 										<span class="help-block">

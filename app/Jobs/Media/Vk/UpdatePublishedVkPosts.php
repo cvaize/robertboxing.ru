@@ -51,11 +51,9 @@ class UpdatePublishedVkPosts implements ShouldQueue {
 		$lastTenPosts = $this->vkPosts->orderByDesc('id')->take(10)->get();
 
 		foreach ($lastTenPosts as $post) {
-			//$logMessage .= $post->getPostId() . '-' . $post->updateFromVk() . ' ';
-
-			$post->updateFromVk();
+			$logMessage .= $post->getPostId() . '-' . $post->updateFromVk() . ' ';
 		}
-		dd('11111');
+
 		dump($logMessage);
 	}
 }

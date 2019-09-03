@@ -31,22 +31,20 @@ class Kernel extends ConsoleKernel {
 		// $schedule->command('inspire')
 		//          ->hourly();
 
-		//$schedule->job(new GetVkPosts(true, true))
-		//		->everyMinute();
+		$schedule->job(new GetVkPosts(true, true))
+				->everyMinute()->withoutOverlapping();
 		$schedule->job(new UpdatePublishedVkPosts(true, true))
-				->everyMinute();
+				->everyMinute()->withoutOverlapping();
 
-		//$schedule->job(new GetInstagramPosts(true, true))
-		//		->everyMinute();
-		//$schedule->job(new UpdatePublishedInstagramPosts(true, true))
-		//		->everyTenMinutes();
+		$schedule->job(new GetInstagramPosts(true, true))
+				->everyMinute()->withoutOverlapping();
+		$schedule->job(new UpdatePublishedInstagramPosts(true, true))
+				->daily()->withoutOverlapping();
 
-		//$schedule->job(new GetYoutubeVideos(true, true))
-		//	->everyMinute();
-		//$schedule->job(new UpdatePublishedYoutubeVideos(true, true))
-		//	->everyMinute();
-		//$schedule->job(new UpdatePublishedYoutubeVideos(true, true))
-		//	->everyTenMinute();
+		$schedule->job(new GetYoutubeVideos(true, true))
+			->everyMinute()->withoutOverlapping();
+		$schedule->job(new UpdatePublishedYoutubeVideos(true, true))
+			->everyMinute()->withoutOverlapping();
 	}
 
 	/**

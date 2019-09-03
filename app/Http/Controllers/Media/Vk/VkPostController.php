@@ -26,24 +26,8 @@ class VkPostController extends Controller {
 	 * @return \Illuminate\Http\Response
 	 */
 	public function index() {
-		$postPinned = $this->vkPosts->pinned()->get();
-		$vkPosts = $this->vkPosts::orderByDesc('id')->take(3)->get();
-		$isCoincidence = false;
-		if (0 !== count($postPinned)) {
-			foreach ($postPinned as $item) {
-				foreach ($vkPosts as $key => $post) {
-					if ($item->{'post_id'} === $post->{'post_id'}) {
-						$isCoincidence = true;
-						unset($vkPosts[$key]);
-					}
-					$lastElem = end($vkPosts);
-					if ($post === end($lastElem) && !$isCoincidence) {
-						unset($vkPosts[$key]);
-					}
-				}
-			}
-		}
-		return view('vkposts.index', compact('vkPosts'), compact('postPinned'));
+		$vkPosts = $this->vkPosts->posts()->get();
+		return view('vkposts.index', compact('vkPosts'));
 	}
 
 	/**

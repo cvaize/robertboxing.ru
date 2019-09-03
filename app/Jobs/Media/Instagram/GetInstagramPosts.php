@@ -58,76 +58,75 @@ class GetInstagramPosts implements ShouldQueue {
 	 * @return void
 	 */
 	public function handle(InstagramPost $instagramPosts) {
-
-		dd($this->getPosts());
-
 		$this->instagramPosts = $instagramPosts;
-		$getInstagramPosts = array_reverse($this->getPosts(), true);
+		$getInstagramPosts = $this->getPosts();
 		$logMessage = '';
+		if (null !== $getInstagramPosts) {
+			$getInstagramPosts = array_reverse($getInstagramPosts, true);
 
-		$logMessage .= Carbon::now()->toDayDateTimeString() . ' Get instagram posts: ';
+			$logMessage .= Carbon::now()->toDayDateTimeString() . ' Get instagram posts: ';
 
+			foreach ($getInstagramPosts as $post) {
+				/**
+				 * @var Item $post
+				 */
+				$payload = [];
+				$postId = $post->getId();
+				$postUrl = $post->getItemUrl();
+				$postedAt = $post->getDeviceTimestamp();
 
-		foreach ($getInstagramPosts as $post) {
-			/**
-			 * @var Item $post
-			 */
-			$payload = [];
-			$postId = $post->getId();
-			$postUrl = $post->getItemUrl();
-			$postedAt = $post->getDeviceTimestamp();
+				if (0 !== count($this->instagramPosts::where('post_id', $postId)->get()))
+					continue;
 
-			if (0 !== count($this->instagramPosts::where('post_id', $postId)->get()))
-				continue;
+				$payload['media'] = [];
 
-			$payload['media'] = [];
-
-			if ($post->isCarouselMedia()) {
-				foreach ($post->getCarouselMedia() as $media) {
-					if ($media->isVideoVersions()) {
-						$video = [
-								'first_frame' => $media->getImageVersions2()->getCandidates()[0]->getUrl(),
-								'url' => $media->getVideoVersions()[0]->getUrl(),
-								'isImage' => false,
-								'isVideo' => true
-						];
-						$payload['media'][] = $video;
-					} else {
-						$image = [
-								'url' => $media->getImageVersions2()->getCandidates()[0]->getUrl(),
-								'isImage' => true,
-								'isVideo' => false
-						];
-						$payload['media'][] = $image;
+				if ($post->isCarouselMedia()) {
+					foreach ($post->getCarouselMedia() as $media) {
+						if ($media->isVideoVersions()) {
+							$video = [
+									'first_frame' => $media->getImageVersions2()->getCandidates()[0]->getUrl(),
+									'url' => $media->getVideoVersions()[0]->getUrl(),
+									'isImage' => false,
+									'isVideo' => true
+							];
+							$payload['media'][] = $video;
+						} else {
+							$image = [
+									'url' => $media->getImageVersions2()->getCandidates()[0]->getUrl(),
+									'isImage' => true,
+									'isVideo' => false
+							];
+							$payload['media'][] = $image;
+						}
 					}
+				} elseif ($post->isVideoVersions()) {
+					$video = [
+							'first_frame' => $post->getImageVersions2()->getCandidates()[0]->getUrl(),
+							'url' => $post->getVideoVersions()[0]->getUrl(),
+							'isImage' => false,
+							'isVideo' => true
+					];
+					$payload['media'][] = $video;
+				} else {
+					$image = [
+							'url' => $post->getImageVersions2()->getCandidates()[0]->getUrl(),
+							'isImage' => true,
+							'isVideo' => false
+					];
+					$payload['media'][] = $image;
 				}
-			} elseif ($post->isVideoVersions()) {
-				$video = [
-						'first_frame' => $post->getImageVersions2()->getCandidates()[0]->getUrl(),
-						'url' => $post->getVideoVersions()[0]->getUrl(),
-						'isImage' => false,
-						'isVideo' => true
-				];
-				$payload['media'][] = $video;
-			} else {
-				$image = [
-						'url' => $post->getImageVersions2()->getCandidates()[0]->getUrl(),
-						'isImage' => true,
-						'isVideo' => false
-				];
-				$payload['media'][] = $image;
-			}
 
-			if ($post->isCaption()) {
-				$payload['caption'] = $post->getCaption()->getText();
-			} else {
-				$payload['caption'] = '';
-			}
+				if ($post->isCaption()) {
+					$payload['caption'] = $post->getCaption()->getText();
+				} else {
+					$payload['caption'] = '';
+				}
 
-			$payload['posted_at'] = $postedAt;
-			$logMessage .= $postUrl . ' ';
-			$frd = ['post_id' => $postId, 'link' => $postUrl, 'payload' => $payload];
-			$this->instagramPosts->create($frd);
+				$payload['posted_at'] = $postedAt;
+				$logMessage .= $postUrl . ' ';
+				$frd = ['post_id' => $postId, 'link' => $postUrl, 'payload' => $payload];
+				$this->instagramPosts->create($frd);
+			}
 		}
 
 		dump($logMessage);
@@ -161,7 +160,7 @@ class GetInstagramPosts implements ShouldQueue {
 		try {
 			$client = $this->getClient();
 			if (null !== $client) {
-				$userId = $client->people->getUserIdForName('_r_robert_r_');
+				$userId = $client->people->getUserIdForName('rustamyan_team');
 				$maxId = null;
 				$response = $client->timeline->getUserFeed($userId, $maxId);
 				$items = $response->getItems();

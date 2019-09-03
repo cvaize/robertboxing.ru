@@ -84,7 +84,6 @@ class GetVkPosts implements ShouldQueue {
 		$hasntPinned_needToUpdate = false;
 		$indexPosts = 0;
 		$getVkPosts = array_reverse($this->getPosts()['items'], true);
-
 		$logMessage = '';
 
 		$dateNow = Carbon::now()->toDayDateTimeString();
@@ -186,10 +185,13 @@ class GetVkPosts implements ShouldQueue {
 						$postAttachments[] = $video;
 					}
 				}
-				$getVkPost['text'] = $this->replaceLinks($getVkPost['text']);
-				$getVkPost['text'] = $this->replaceVkLinks($getVkPost['text']);
 
 				$payload = ['post_author' => $getVkPost['from_id'], 'copy_history' => 0, 'post_attachments' => $postAttachments, 'posted_at' => $getVkPost['date']];
+			}
+
+			if ("" !== $getVkPost['text']) {
+				$getVkPost['text'] = $this->replaceLinks($getVkPost['text']);
+				$getVkPost['text'] = $this->replaceVkLinks($getVkPost['text']);
 			}
 
 			$frd = ['post_id' => $getVkPost['id'], 'post_text' => $getVkPost['text'], 'is_pinned' => $isPinned, 'payload' => $payload];
@@ -209,12 +211,13 @@ class GetVkPosts implements ShouldQueue {
 					}
 				}
 			});
-
-			$existPost = $this->vkPosts->exist($idPinnedPost)->get();
-			if (0 !== count($existPost)) {
-				foreach ($existPost as $post) {
-					$post->setPinned(1);
-					$post->save();
+			if ($hasPinned_needToUpdate) {
+				$existPost = $this->vkPosts->exist($idPinnedPost)->get();
+				if (0 !== count($existPost)) {
+					foreach ($existPost as $post) {
+						$post->setPinned(1);
+						$post->save();
+					}
 				}
 			}
 		}
