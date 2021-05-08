@@ -28,7 +28,7 @@
         "jquery-touchswipe": "^1.6.19",
         "jquery.nicescroll": "github:inuyaksa/jquery.nicescroll",
         "laravel-mix": "^4.0.12",
-        "lodash": "^4.17.11",
+        "lodash": "^4.17.21",
         "malihu-custom-scrollbar-plugin": "^3.1.5",
         "owl.carousel": "^2.3.4",
         "pace": "github:HubSpot/pace#v1.0.2",
